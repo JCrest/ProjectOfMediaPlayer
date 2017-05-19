@@ -1,6 +1,7 @@
 package com.example.jiangchuanfa.projectofmediaplayer.MiddleBaseFragment.Fragment;
 
 import android.graphics.Color;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.TextView;
@@ -17,6 +18,7 @@ public class LocalVideoPager extends BaseFragment {
     //重写视图
     @Override
     public View initView() {
+        Log.e("TAG","LocalVideoPager-initView");
         textView = new TextView(context);
         textView.setTextSize(30);
         textView.setGravity(Gravity.CENTER);
@@ -26,6 +28,7 @@ public class LocalVideoPager extends BaseFragment {
 
     @Override
     public void initData() {
+        Log.e("TAG","LocalVideoPager-initData");
         textView.setText("本地视频的内容");
 
     }

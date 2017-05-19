@@ -3,7 +3,6 @@ package com.example.jiangchuanfa.projectofmediaplayer;
 import android.os.Bundle;
 import android.support.annotation.IdRes;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.RadioGroup;
@@ -24,6 +23,7 @@ public class MainActivity extends AppCompatActivity {
     private RadioGroup rg_main;
     private ArrayList<Fragment> fragments;//因为这四个控件具有相同的属性所以用集合来管理
     private int position;
+    private Fragment tempFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,21 +66,37 @@ public class MainActivity extends AppCompatActivity {
                     position = 3;
                     break;
             }
-            addFragment();
+            //根据位置得到要显示的
+            Fragment currentFragment = fragments.get(position);
+            addFragment(currentFragment);
         }
     }
 
 
-    private void addFragment() {
-        //根据位置得到BaseFragment的视图
-        Fragment baseFragment = fragments.get(position);
-        //得到FragmentManager
-        FragmentManager fm = getSupportFragmentManager();
-        //开启事务
-        FragmentTransaction ft = fm.beginTransaction();
-        //替换内容
-        ft.replace(R.id.fl_content, baseFragment);
-        //提交事务
-        ft.commit();
+    private void addFragment(Fragment currentFragment) {
+        if (tempFragment != currentFragment) {
+            FragmentTransaction ft = getSupportFragmentManager().beginTransaction();//如果缓存的于当前的不相等的话开启事务
+            //判断当前的Fragment是否被添加过--没有被添加过
+            if (!currentFragment.isAdded()) {
+                //判断缓存是否为空--不为空
+                if (tempFragment != null) {
+                    //将缓存的隐藏起来
+                    ft.hide(tempFragment);
+                }
+                //将当前的Fragment给添加进来
+                ft.add(R.id.fl_content, currentFragment);
+                //判断当前的Fragment是否被添加过--有被添加过
+            } else {
+                //判断缓存是否为空--不为空
+                if (tempFragment != null) {
+                    //将缓存的隐藏起来
+                    ft.hide(tempFragment);
+                }
+                //将当前的给显示出来
+                ft.show(currentFragment);
+            }
+            ft.commit();
+            tempFragment=currentFragment;
+        }
     }
 }

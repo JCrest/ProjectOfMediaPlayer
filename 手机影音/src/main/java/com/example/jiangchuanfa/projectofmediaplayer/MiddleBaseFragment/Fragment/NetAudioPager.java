@@ -1,6 +1,7 @@
 package com.example.jiangchuanfa.projectofmediaplayer.MiddleBaseFragment.Fragment;
 
 import android.graphics.Color;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.TextView;
@@ -16,6 +17,7 @@ public class NetAudioPager extends BaseFragment {
 
     @Override
     public View initView() {
+        Log.e("TAG","NetAudioPager-initView");
         textView = new TextView(context);
         textView.setTextColor(Color.BLUE);
         textView.setTextSize(30);
@@ -25,6 +27,7 @@ public class NetAudioPager extends BaseFragment {
 
     @Override
     public void initData() {
+        Log.e("TAG","NetAudioPager-initData");
         textView.setText("网络音频内容");
     }
 }

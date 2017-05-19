@@ -1,6 +1,7 @@
 package com.example.jiangchuanfa.projectofmediaplayer.MiddleBaseFragment.Fragment;
 
 import android.graphics.Color;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.TextView;
@@ -17,6 +18,7 @@ public class LocalAudioPager extends BaseFragment {
     //重写视图
     @Override
     public View initView() {
+        Log.e("TAG","LocalAudioPager-initView");
         textView = new TextView(context);
         textView.setTextSize(30);
         textView.setGravity(Gravity.CENTER);
@@ -26,6 +28,7 @@ public class LocalAudioPager extends BaseFragment {
 
     @Override
     public void initData() {
+        Log.e("TAG","LocalAudioPager-initData");
         textView.setText("本地音频的内容");
 
     }
