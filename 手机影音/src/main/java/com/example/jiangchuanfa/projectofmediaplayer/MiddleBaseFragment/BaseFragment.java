@@ -13,9 +13,11 @@ import android.view.ViewGroup;
  */
 
 public abstract class BaseFragment extends Fragment {
-    private Context context;
+    public Context context;
+
     /**
      * 当Fragment被创建的时候回调
+     *
      * @param savedInstanceState
      */
     @Override
@@ -26,6 +28,7 @@ public abstract class BaseFragment extends Fragment {
 
     /**
      * 当创建视图的时候回调
+     *
      * @param inflater
      * @param container
      * @param savedInstanceState
@@ -37,14 +40,17 @@ public abstract class BaseFragment extends Fragment {
         return initView();
 
     }
+
     /**
      * 由子类实现的抽象方法，写不同的布局，不同的效果
+     *
      * @return
      */
     public abstract View initView();//抽象的方法只能由public来修饰
 
     /**
      * 当依附的Activity被创建的时候回调
+     *
      * @param savedInstanceState
      */
     @Override
@@ -53,6 +59,8 @@ public abstract class BaseFragment extends Fragment {
         initData();//在得到视图的基础上，设置数据
     }
 
-    private void initData() {
+    public void initData() {
     }
+
+
 }
