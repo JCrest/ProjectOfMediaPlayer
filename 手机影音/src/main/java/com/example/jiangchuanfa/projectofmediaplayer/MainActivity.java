@@ -5,6 +5,7 @@ import android.support.annotation.IdRes;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.widget.RadioGroup;
 
 import com.example.jiangchuanfa.projectofmediaplayer.MiddleBaseFragment.Fragment.LocalAudioPager;
@@ -16,6 +17,8 @@ import java.util.ArrayList;
 
 /**
  * Created by crest on 2017/5/19.
+ *
+ *
  */
 
 public class MainActivity extends AppCompatActivity {
@@ -27,6 +30,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        Log.e("MainActivity", "onCreate");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         //初始化控件
@@ -96,7 +100,43 @@ public class MainActivity extends AppCompatActivity {
                 ft.show(currentFragment);
             }
             ft.commit();
-            tempFragment=currentFragment;
+            tempFragment = currentFragment;
         }
+    }
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        Log.e("MainActivity", "onRestart");
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        Log.e("MainActivity", "onStart");
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Log.e("MainActivity", "onResume");
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        Log.e("MainActivity", "onPause");
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        Log.e("MainActivity", "onStop");
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        Log.e("MainActivity", "onDestroy");
     }
 }
