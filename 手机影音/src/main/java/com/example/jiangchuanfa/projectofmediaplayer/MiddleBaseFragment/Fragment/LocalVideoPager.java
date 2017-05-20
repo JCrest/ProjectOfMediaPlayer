@@ -1,6 +1,7 @@
 package com.example.jiangchuanfa.projectofmediaplayer.MiddleBaseFragment.Fragment;
 
 import android.content.ContentResolver;
+import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Handler;
@@ -10,8 +11,8 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
+import com.example.jiangchuanfa.projectofmediaplayer.Activity.SystemVideoPlayerActivity;
 import com.example.jiangchuanfa.projectofmediaplayer.Adapter.LocalVideoAdapter;
 import com.example.jiangchuanfa.projectofmediaplayer.DoMain.MediaItem;
 import com.example.jiangchuanfa.projectofmediaplayer.MiddleBaseFragment.BaseFragment;
@@ -45,7 +46,10 @@ public class LocalVideoPager extends BaseFragment {
 //                MediaItem mediaItem = mediaItems.get(position);
 
                 MediaItem item = adapter.getItem(position);
-                Toast.makeText(context, ""+item.toString(), Toast.LENGTH_SHORT).show();
+                //Toast.makeText(context, ""+item.toString(), Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(context,SystemVideoPlayerActivity.class);
+                intent.setDataAndType(Uri.parse(item.getData()),"video/*");
+                startActivity(intent);
             }
         });
         return view;
