@@ -1,11 +1,14 @@
 package com.example.jiangchuanfa.projectofmediaplayer;
 
+import android.Manifest;
+import android.app.Activity;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.IdRes;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.widget.RadioGroup;
 
 import com.example.jiangchuanfa.projectofmediaplayer.MiddleBaseFragment.Fragment.LocalAudioPager;
@@ -30,9 +33,9 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        Log.e("MainActivity", "onCreate");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        isGrantExternalRW(this);
         //初始化控件
         rg_main = (RadioGroup) findViewById(R.id.rg_main);
         initFragment();
@@ -103,40 +106,20 @@ public class MainActivity extends AppCompatActivity {
             tempFragment = currentFragment;
         }
     }
+    public static boolean isGrantExternalRW(Activity activity) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && activity.checkSelfPermission(
+                Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
 
-    @Override
-    protected void onRestart() {
-        super.onRestart();
-        Log.e("MainActivity", "onRestart");
+            activity.requestPermissions(new String[]{
+                    Manifest.permission.READ_EXTERNAL_STORAGE,
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE
+            }, 1);
+
+            return false;
+        }
+
+        return true;
     }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-        Log.e("MainActivity", "onStart");
-    }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        Log.e("MainActivity", "onResume");
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        Log.e("MainActivity", "onPause");
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        Log.e("MainActivity", "onStop");
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        Log.e("MainActivity", "onDestroy");
-    }
 }
