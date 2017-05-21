@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
@@ -38,6 +39,8 @@ public class SystemVideoPlayerActivity extends AppCompatActivity implements View
 
     private static final int PROGRESS = 0;
     private static final int HIDE_MEDIA_CONTROLLER = 1;
+    private static final int DEFUALT_SCREEN = 0;
+    private static final int FULL_SCREEN = 1;
     private VideoView vv;
     private Uri uri;
     private ArrayList<MediaItem> mediaItems;
@@ -65,6 +68,14 @@ public class SystemVideoPlayerActivity extends AppCompatActivity implements View
     private GestureDetector detector;
     //声明是否隐藏视频播放控制器
     private boolean isShowMediaController = false;
+    //默认自适应播放（根据视频本身自动适应屏幕）
+    private boolean isFullScreen = false;
+    //屏幕的高
+    private int screenHeight;
+    //屏幕的宽
+    private int screenWidth;
+    private int videoWidth;
+    private int videoHeight;
 
     /**
      * Find the Views in the layout<br />
@@ -101,6 +112,7 @@ public class SystemVideoPlayerActivity extends AppCompatActivity implements View
         btnSwitchScreen.setOnClickListener(this);
     }
 
+
     /**
      * Handle button click events<br />
      * <br />
@@ -128,10 +140,46 @@ public class SystemVideoPlayerActivity extends AppCompatActivity implements View
             // Handle clicks for btnNext
         } else if (v == btnSwitchScreen) {
             // Handle clicks for btnSwitchScreen
+            if (isFullScreen) {
+
+                setVideoType(DEFUALT_SCREEN);
+
+            } else {
+                setVideoType(FULL_SCREEN);
+            }
         }
         //当点击按钮的时候移除消息，然后重新发消息重新计时，就不会出现在点击按钮的时候控制面板突然消失的尴尬
         handler.removeMessages(1);
-        handler.sendEmptyMessageDelayed(1,5000);
+        handler.sendEmptyMessageDelayed(1, 5000);
+    }
+
+    private void setVideoType(int videoTypt) {
+        switch (videoTypt) {
+            case 1:
+                isFullScreen = true;
+                btnSwitchScreen.setBackgroundResource(R.drawable.btn_switch_screen_default_selector);
+                vv.setVideoSize(screenWidth, screenHeight);
+                break;
+            case 0:
+                isFullScreen = false;
+                btnSwitchScreen.setBackgroundResource(R.drawable.btn_switch_screen_full_selector);
+                int mVideoWidth = videoWidth;
+                int mVideoHeight = videoWidth;
+                int width = screenWidth;
+                int height = screenHeight;
+
+                // for compatibility, we adjust size based on aspect ratio
+                if (mVideoWidth * height < width * mVideoHeight) {
+                    //Log.i("@@@", "image too wide, correcting");
+                    width = height * mVideoWidth / mVideoHeight;
+                } else if (mVideoWidth * height > width * mVideoHeight) {
+                    //Log.i("@@@", "image too tall, correcting");
+                    height = width * mVideoHeight / mVideoWidth;
+                }
+                vv.setVideoSize(width,height);
+                break;
+        }
+
     }
 
     private void setStartOrPause() {
@@ -243,18 +291,24 @@ public class SystemVideoPlayerActivity extends AppCompatActivity implements View
 
             @Override
             public boolean onSingleTapConfirmed(MotionEvent e) {
-               // Toast.makeText(SystemVideoPlayerActivity.this, "单击了", Toast.LENGTH_SHORT).show();
-                if(isShowMediaController) {
+                // Toast.makeText(SystemVideoPlayerActivity.this, "单击了", Toast.LENGTH_SHORT).show();
+                if (isShowMediaController) {
                     hideMediaController();
                     handler.removeMessages(1);
-                }else {
+                } else {
                     showMediaController();
-                    handler.sendEmptyMessageDelayed(HIDE_MEDIA_CONTROLLER,5000);
+                    handler.sendEmptyMessageDelayed(HIDE_MEDIA_CONTROLLER, 5000);
                 }
                 return super.onSingleTapConfirmed(e);
             }
         });
+        DisplayMetrics mertrics = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(mertrics);
+        screenHeight = mertrics.heightPixels;
+        screenWidth = mertrics.widthPixels;
+
     }
+
     //手势识别器一般往往是和触摸事件成对出现的（把事件交给手势识别器去解析）
     @Override
     public boolean onTouchEvent(MotionEvent event) {
@@ -263,15 +317,16 @@ public class SystemVideoPlayerActivity extends AppCompatActivity implements View
     }
 
     //自己写的方法隐藏控制视频设置
-    private void hideMediaController(){
+    private void hideMediaController() {
         llBottom.setVisibility(View.GONE);
         llTop.setVisibility(View.GONE);
-        isShowMediaController =false;//默认视频设置的布局是隐藏的
+        isShowMediaController = false;//默认视频设置的布局是隐藏的
     }
-    private void showMediaController (){
+
+    private void showMediaController() {
         llBottom.setVisibility(View.VISIBLE);
         llTop.setVisibility(View.VISIBLE);
-        isShowMediaController =true;
+        isShowMediaController = true;
 
     }
 
@@ -313,6 +368,8 @@ public class SystemVideoPlayerActivity extends AppCompatActivity implements View
             //底层准备播放完成的时候回调
             @Override
             public void onPrepared(MediaPlayer mp) {
+                videoWidth = mp.getVideoWidth();
+                videoHeight = mp.getVideoHeight();
                 //得到视频的总时长
                 int duration = vv.getDuration();
                 seekbarVideo.setMax(duration);
@@ -324,6 +381,8 @@ public class SystemVideoPlayerActivity extends AppCompatActivity implements View
                 handler.sendEmptyMessage(PROGRESS);
                 //进入播放模式先隐藏控制的布局
                 hideMediaController();
+                //设置默认屏幕
+                setVideoType(0);
             }
         });
 
@@ -362,7 +421,7 @@ public class SystemVideoPlayerActivity extends AppCompatActivity implements View
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
-                handler.sendEmptyMessageDelayed(1,5000);//当手指移开的时候再重新发送消息（隐藏控制面板）
+                handler.sendEmptyMessageDelayed(1, 5000);//当手指移开的时候再重新发送消息（隐藏控制面板）
 
             }
         });
