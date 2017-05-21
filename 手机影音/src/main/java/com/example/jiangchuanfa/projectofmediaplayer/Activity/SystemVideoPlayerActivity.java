@@ -342,11 +342,47 @@ public class SystemVideoPlayerActivity extends AppCompatActivity implements View
 
     }
 
+
+    private float startY;
+
+    private int touchRang = 0;
+
+    private int mVol;
+
     //手势识别器一般往往是和触摸事件成对出现的（把事件交给手势识别器去解析）
     @Override
     public boolean onTouchEvent(MotionEvent event) {
+        super.onTouchEvent(event);
         detector.onTouchEvent(event);
-        return super.onTouchEvent(event);
+
+
+        if (event.getAction() == MotionEvent.ACTION_DOWN) {
+            //1.按下
+            //按下的时候记录起始坐标，最大的滑动区域（屏幕的高），当前的音量
+            startY = event.getY();
+            touchRang = Math.min(screenHeight, screenWidth);//screeHeight
+            mVol = am.getStreamVolume(AudioManager.STREAM_MUSIC);
+            //把消息移除
+            handler.removeMessages(HIDE_MEDIA_CONTROLLER);
+        }else if (event.getAction() == MotionEvent.ACTION_MOVE) {
+            float endY = event.getY();
+            //屏幕滑动的距离
+            float distanceY = startY - endY;
+            //滑动屏幕的距离 ： 总距离  = 改变的声音 ： 总声音
+
+            //改变的声音 = （滑动屏幕的距离 / 总距离)*总声音
+            float delta = (distanceY/touchRang) * maxVoice;
+            // 设置的声音  = 原来记录的 + 改变的声音
+            int volue = (int) Math.min(Math.max(mVol + delta,0),maxVoice);
+            //判断
+            if(delta != 0){
+                updateVoiceProgress(volue);
+            }
+//            startY = event.getY();//不能添加
+        } else if (event.getAction() == MotionEvent.ACTION_UP) {
+            handler.sendEmptyMessageDelayed(HIDE_MEDIA_CONTROLLER,5000);
+        }
+        return true;
     }
 
     //自己写的方法隐藏控制视频设置
@@ -462,15 +498,17 @@ public class SystemVideoPlayerActivity extends AppCompatActivity implements View
         seekbarVoice.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                if(fromUser){
+                if (fromUser) {
                     updateVoiceProgress(progress);
                 }
             }
+
             @Override
             public void onStartTrackingTouch(SeekBar seekBar) {
                 //当一触摸SeekBar的时候移除隐藏的消息，保证在手指触碰seekbar期间控制面板不会被隐藏
                 handler.removeMessages(1);
             }
+
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
                 handler.sendEmptyMessageDelayed(1, 5000);//当手指移开的时候再重新发送消息（隐藏控制面板）
@@ -482,12 +520,12 @@ public class SystemVideoPlayerActivity extends AppCompatActivity implements View
     private void updateVoiceProgress(int progress) {
         currentVoice = progress;
         //真正改变声音
-        am.setStreamVolume(AudioManager.STREAM_MUSIC,currentVoice,0);
+        am.setStreamVolume(AudioManager.STREAM_MUSIC, currentVoice, 0);
         //改变进度条
         seekbarVoice.setProgress(currentVoice);
-        if(currentVoice <=0){
+        if (currentVoice <= 0) {
             isMute = true;
-        }else {
+        } else {
             isMute = false;
         }
     }
