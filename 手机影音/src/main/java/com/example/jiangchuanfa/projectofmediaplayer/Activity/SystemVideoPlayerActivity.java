@@ -20,8 +20,8 @@ import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.VideoView;
 
+import com.example.jiangchuanfa.projectofmediaplayer.CustomView.VideoView;
 import com.example.jiangchuanfa.projectofmediaplayer.DoMain.MediaItem;
 import com.example.jiangchuanfa.projectofmediaplayer.R;
 import com.example.jiangchuanfa.projectofmediaplayer.Utils.Utils;
