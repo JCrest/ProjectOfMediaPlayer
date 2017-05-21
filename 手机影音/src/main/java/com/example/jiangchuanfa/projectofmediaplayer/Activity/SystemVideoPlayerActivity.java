@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
@@ -76,6 +77,13 @@ public class SystemVideoPlayerActivity extends AppCompatActivity implements View
     private int screenWidth;
     private int videoWidth;
     private int videoHeight;
+    //设置当前的音量
+    private int currentVoice;
+    private AudioManager am;
+    //设置最大音量
+    private int maxVoice;
+    //是否静音
+    private boolean isMute = false;
 
     /**
      * Find the Views in the layout<br />
@@ -110,6 +118,10 @@ public class SystemVideoPlayerActivity extends AppCompatActivity implements View
         btnStartPause.setOnClickListener(this);
         btnNext.setOnClickListener(this);
         btnSwitchScreen.setOnClickListener(this);
+        //关联seekbar;设置最大音量、和当前音量（即实时音量）注：在此处这两行的代码是不可以调换的
+        //音量的取值范围在（0-15）之间取值（姑且认为其为16进制的吧）
+        seekbarVoice.setMax(maxVoice);
+        seekbarVoice.setProgress(currentVoice);
     }
 
 
@@ -122,6 +134,10 @@ public class SystemVideoPlayerActivity extends AppCompatActivity implements View
     @Override
     public void onClick(View v) {
         if (v == btnVoice) {
+            isMute = !isMute;
+            updateVoice(isMute);
+
+
             // Handle clicks for btnVoice
         } else if (v == btnSwitchPlayer) {
             // Handle clicks for btnSwitchPlayer
@@ -153,6 +169,18 @@ public class SystemVideoPlayerActivity extends AppCompatActivity implements View
         handler.sendEmptyMessageDelayed(1, 5000);
     }
 
+    private void updateVoice(boolean isMute) {
+        if (isMute) {
+            am.setStreamVolume(AudioManager.STREAM_MUSIC, 0, 0);//最后一个0、1表示是否启动系统调节
+            seekbarVoice.setProgress(0);
+        } else {
+            am.setStreamVolume(AudioManager.STREAM_MUSIC, currentVoice, 0);
+            seekbarVoice.setProgress(currentVoice);
+        }
+
+    }
+
+
     private void setVideoType(int videoTypt) {
         switch (videoTypt) {
             case 1:
@@ -176,7 +204,7 @@ public class SystemVideoPlayerActivity extends AppCompatActivity implements View
                     //Log.i("@@@", "image too tall, correcting");
                     height = width * mVideoHeight / mVideoWidth;
                 }
-                vv.setVideoSize(width,height);
+                vv.setVideoSize(width, height);
                 break;
         }
 
@@ -307,6 +335,11 @@ public class SystemVideoPlayerActivity extends AppCompatActivity implements View
         screenHeight = mertrics.heightPixels;
         screenWidth = mertrics.widthPixels;
 
+        //初始化声音相关的选项
+        am = (AudioManager) getSystemService(AUDIO_SERVICE);
+        currentVoice = am.getStreamVolume(AudioManager.STREAM_MUSIC);
+        maxVoice = am.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
+
     }
 
     //手势识别器一般往往是和触摸事件成对出现的（把事件交给手势识别器去解析）
@@ -404,7 +437,7 @@ public class SystemVideoPlayerActivity extends AppCompatActivity implements View
             }
         });
 
-        //设置Seekbar状态改变的监听
+        //设置Seekbar状态改变的监听（表示视频播放进程）
         seekbarVideo.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
@@ -425,6 +458,38 @@ public class SystemVideoPlayerActivity extends AppCompatActivity implements View
 
             }
         });
+        //监听拖动声音(通过拖动seekbar)用来改变声音的大小
+        seekbarVoice.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                if(fromUser){
+                    updateVoiceProgress(progress);
+                }
+            }
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+                //当一触摸SeekBar的时候移除隐藏的消息，保证在手指触碰seekbar期间控制面板不会被隐藏
+                handler.removeMessages(1);
+            }
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                handler.sendEmptyMessageDelayed(1, 5000);//当手指移开的时候再重新发送消息（隐藏控制面板）
+            }
+        });
+    }
+
+    //具体的实时方法：（声音随这不断拖动不断变化）
+    private void updateVoiceProgress(int progress) {
+        currentVoice = progress;
+        //真正改变声音
+        am.setStreamVolume(AudioManager.STREAM_MUSIC,currentVoice,0);
+        //改变进度条
+        seekbarVoice.setProgress(currentVoice);
+        if(currentVoice <=0){
+            isMute = true;
+        }else {
+            isMute = false;
+        }
     }
 
     //设置播放下一个
