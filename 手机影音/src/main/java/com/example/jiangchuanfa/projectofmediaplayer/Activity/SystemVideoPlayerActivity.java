@@ -37,10 +37,10 @@ import java.util.Date;
 public class SystemVideoPlayerActivity extends AppCompatActivity implements View.OnClickListener {
 
     private static final int PROGRESS = 0;
+    private static final int HIDE_MEDIA_CONTROLLER = 1;
     private VideoView vv;
     private Uri uri;
     private ArrayList<MediaItem> mediaItems;
-
     private LinearLayout llTop;
     private TextView tvName;
     private ImageView ivBattery;
@@ -129,6 +129,9 @@ public class SystemVideoPlayerActivity extends AppCompatActivity implements View
         } else if (v == btnSwitchScreen) {
             // Handle clicks for btnSwitchScreen
         }
+        //当点击按钮的时候移除消息，然后重新发消息重新计时，就不会出现在点击按钮的时候控制面板突然消失的尴尬
+        handler.removeMessages(1);
+        handler.sendEmptyMessageDelayed(1,5000);
     }
 
     private void setStartOrPause() {
@@ -161,6 +164,10 @@ public class SystemVideoPlayerActivity extends AppCompatActivity implements View
                     //循环发消息
                     sendEmptyMessageDelayed(PROGRESS, 1000);
 
+                    break;
+                //处理消息隐藏控制面板
+                case 1:
+                    hideMediaController();
                     break;
             }
         }
@@ -236,7 +243,14 @@ public class SystemVideoPlayerActivity extends AppCompatActivity implements View
 
             @Override
             public boolean onSingleTapConfirmed(MotionEvent e) {
-                Toast.makeText(SystemVideoPlayerActivity.this, "单击了", Toast.LENGTH_SHORT).show();
+               // Toast.makeText(SystemVideoPlayerActivity.this, "单击了", Toast.LENGTH_SHORT).show();
+                if(isShowMediaController) {
+                    hideMediaController();
+                    handler.removeMessages(1);
+                }else {
+                    showMediaController();
+                    handler.sendEmptyMessageDelayed(HIDE_MEDIA_CONTROLLER,5000);
+                }
                 return super.onSingleTapConfirmed(e);
             }
         });
@@ -247,6 +261,20 @@ public class SystemVideoPlayerActivity extends AppCompatActivity implements View
         detector.onTouchEvent(event);
         return super.onTouchEvent(event);
     }
+
+    //自己写的方法隐藏控制视频设置
+    private void hideMediaController(){
+        llBottom.setVisibility(View.GONE);
+        llTop.setVisibility(View.GONE);
+        isShowMediaController =false;//默认视频设置的布局是隐藏的
+    }
+    private void showMediaController (){
+        llBottom.setVisibility(View.VISIBLE);
+        llTop.setVisibility(View.VISIBLE);
+        isShowMediaController =true;
+
+    }
+
 
     class MyBroadCastReceiver extends BroadcastReceiver {
 
@@ -294,6 +322,8 @@ public class SystemVideoPlayerActivity extends AppCompatActivity implements View
                 vv.start();//开始播放
                 //发消息开始更新播放进度
                 handler.sendEmptyMessage(PROGRESS);
+                //进入播放模式先隐藏控制的布局
+                hideMediaController();
             }
         });
 
@@ -326,10 +356,13 @@ public class SystemVideoPlayerActivity extends AppCompatActivity implements View
 
             @Override
             public void onStartTrackingTouch(SeekBar seekBar) {
+                //当一触摸SeekBar的时候移除隐藏的消息，保证在手指触碰seekbar期间控制面板不会被隐藏
+                handler.removeMessages(1);
             }
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
+                handler.sendEmptyMessageDelayed(1,5000);//当手指移开的时候再重新发送消息（隐藏控制面板）
 
             }
         });
