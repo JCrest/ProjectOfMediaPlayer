@@ -2,6 +2,7 @@ package com.example.jiangchuanfa.projectofmediaplayer.Activity;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.media.AudioManager;
@@ -10,6 +11,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -126,8 +128,8 @@ public class VitamioVideoPlayerActivity extends AppCompatActivity implements Vie
         vv = (VitamioVideoView) findViewById(R.id.vv);
         ll_buffering = (LinearLayout) findViewById(R.id.ll_buffering);
         tv_net_speed = (TextView) findViewById(R.id.tv_net_speed);
-        ll_loading = (LinearLayout)findViewById(R.id.ll_loading);
-        tv_loading_net_speed = (TextView)findViewById(R.id.tv_loading_net_speed);
+        ll_loading = (LinearLayout) findViewById(R.id.ll_loading);
+        tv_loading_net_speed = (TextView) findViewById(R.id.tv_loading_net_speed);
 
 
         btnVoice.setOnClickListener(this);
@@ -162,6 +164,7 @@ public class VitamioVideoPlayerActivity extends AppCompatActivity implements Vie
             // Handle clicks for btnVoice
         } else if (v == btnSwitchPlayer) {
             // Handle clicks for btnSwitchPlayer
+            switchPlayer();
         } else if (v == btnExit) {
             finish();
             // Handle clicks for btnExit
@@ -188,6 +191,38 @@ public class VitamioVideoPlayerActivity extends AppCompatActivity implements Vie
         //当点击按钮的时候移除消息，然后重新发消息重新计时，就不会出现在点击按钮的时候控制面板突然消失的尴尬
         handler.removeMessages(1);
         handler.sendEmptyMessageDelayed(1, 5000);
+    }
+
+    private void switchPlayer() {
+        new AlertDialog.Builder(this)
+                .setTitle("提示")
+                .setMessage("如果当前为万能播放器播放，当播放有色块，播放质量不好，请切换到系统播放器播放")
+                .setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        startSystemPlayer();
+                    }
+                })
+                .setNegativeButton("取消", null)
+                .show();
+    }
+
+    private void startSystemPlayer() {
+        if(vv != null){
+            vv.stopPlayback();
+        }
+        Intent intent = new Intent(this, SystemVideoPlayerActivity.class);
+        if(mediaItems != null && mediaItems.size() >0){
+            Bundle bunlder = new Bundle();
+            bunlder.putSerializable("videolist",mediaItems);
+            intent.putExtra("position",position);
+            //放入Bundler
+            intent.putExtras(bunlder);
+        }else if(uri != null){
+            intent.setData(uri);
+        }
+        startActivity(intent);
+        finish();
     }
 
     private void updateVoice(boolean isMute) {
@@ -248,12 +283,12 @@ public class VitamioVideoPlayerActivity extends AppCompatActivity implements Vie
             super.handleMessage(msg);
             switch (msg.what) {
                 case SHOW_NET_SPEED:
-                    if(isNetUri){
+                    if (isNetUri) {
                         String netSpeed = utils.getNetSpeed(VitamioVideoPlayerActivity.this);
-                        tv_loading_net_speed.setText("正在加载中...."+netSpeed);
+                        tv_loading_net_speed.setText("正在加载中...." + netSpeed);
 
-                        tv_net_speed.setText("正在缓冲...."+netSpeed);
-                        sendEmptyMessageDelayed(SHOW_NET_SPEED,1000);
+                        tv_net_speed.setText("正在缓冲...." + netSpeed);
+                        sendEmptyMessageDelayed(SHOW_NET_SPEED, 1000);
                     }
                     break;
 
@@ -571,7 +606,8 @@ public class VitamioVideoPlayerActivity extends AppCompatActivity implements Vie
             @Override
             public boolean onError(MediaPlayer mp, int what, int extra) {
 //                Toast.makeText(SystemVideoPlayerActivity.this, "播放出错了哦", Toast.LENGTH_SHORT).show();
-                startVitamioPlayer();
+                showErrorDialog();
+
 
                 return true;
             }
@@ -651,8 +687,20 @@ public class VitamioVideoPlayerActivity extends AppCompatActivity implements Vie
 
     }
 
+    private void showErrorDialog() {
+        new AlertDialog.Builder(this)
+                .setTitle("提示")
+                .setMessage("当前视频不可播放，请检查网络或者视频文件是否有损坏！")
+                .setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        finish();
+                    }
+                })
+                .show();
+    }
+
     private void startVitamioPlayer() {
-        
 
 
     }
@@ -725,8 +773,6 @@ public class VitamioVideoPlayerActivity extends AppCompatActivity implements Vie
             setEnable(false);
         }
     }
-
-
 
 
     //设置按钮是否可点（即可点击时为正常状态、不可点时为灰色）

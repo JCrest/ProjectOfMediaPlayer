@@ -2,6 +2,7 @@ package com.example.jiangchuanfa.projectofmediaplayer.Activity;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.media.AudioManager;
@@ -11,6 +12,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -156,6 +158,7 @@ public class SystemVideoPlayerActivity extends AppCompatActivity implements View
             // Handle clicks for btnVoice
         } else if (v == btnSwitchPlayer) {
             // Handle clicks for btnSwitchPlayer
+            switchPlayer();
         } else if (v == btnExit) {
             finish();
             // Handle clicks for btnExit
@@ -182,6 +185,22 @@ public class SystemVideoPlayerActivity extends AppCompatActivity implements View
         //当点击按钮的时候移除消息，然后重新发消息重新计时，就不会出现在点击按钮的时候控制面板突然消失的尴尬
         handler.removeMessages(1);
         handler.sendEmptyMessageDelayed(1, 5000);
+    }
+
+    private void switchPlayer() {
+        new AlertDialog.Builder(this)
+                .setTitle("提示")
+                .setMessage("当前使用系统播放器播放，当播放有声音没有画面，请切换到万能播放器播放")
+                .setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        startVitamioPlayer();
+                    }
+                })
+                .setNegativeButton("取消", null)
+                .show();
+
+
     }
 
     private void updateVoice(boolean isMute) {
@@ -268,7 +287,7 @@ public class SystemVideoPlayerActivity extends AppCompatActivity implements View
                     } else {
                         seekbarVideo.setSecondaryProgress(0);
                     }
-                      //卡与不卡
+                    //卡与不卡
                     if (isNetUri && vv.isPlaying()) {
                         int duration = currentPosition - preCurrentPosition;
                         if (duration < 500) {
@@ -667,16 +686,21 @@ public class SystemVideoPlayerActivity extends AppCompatActivity implements View
     }
 
     private void startVitamioPlayer() {
+        if(vv != null){
+            vv.stopPlayback();
+        }
         Intent intent = new Intent(this, VitamioVideoPlayerActivity.class);
-        if (mediaItems != null && mediaItems.size() > 0) {
-            Bundle bundle = new Bundle();
-            bundle.putSerializable("videolist", mediaItems);
-            intent.putExtra("position", position);
-            intent.putExtras(bundle);
-        } else if (uri != null) {
+        if(mediaItems != null && mediaItems.size() >0){
+            Bundle bunlder = new Bundle();
+            bunlder.putSerializable("videolist",mediaItems);
+            intent.putExtra("position",position);
+            //放入Bundler
+            intent.putExtras(bunlder);
+        }else if(uri != null){
             intent.setData(uri);
         }
         startActivity(intent);
+        finish();
 
 
     }
