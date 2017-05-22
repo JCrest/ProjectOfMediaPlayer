@@ -7,6 +7,7 @@ import android.content.IntentFilter;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -85,6 +86,8 @@ public class SystemVideoPlayerActivity extends AppCompatActivity implements View
     private int maxVoice;
     //是否静音
     private boolean isMute = false;
+    private LinearLayout ll_buffering;
+    private TextView tv_net_speed;
 
     /**
      * Find the Views in the layout<br />
@@ -111,6 +114,8 @@ public class SystemVideoPlayerActivity extends AppCompatActivity implements View
         btnNext = (Button) findViewById(R.id.btn_next);
         btnSwitchScreen = (Button) findViewById(R.id.btn_switch_screen);
         vv = (VideoView) findViewById(R.id.vv);
+        ll_buffering = (LinearLayout) findViewById(R.id.ll_buffering);
+        tv_net_speed = (TextView) findViewById(R.id.tv_net_speed);
 
         btnVoice.setOnClickListener(this);
         btnSwitchPlayer.setOnClickListener(this);
@@ -594,6 +599,27 @@ public class SystemVideoPlayerActivity extends AppCompatActivity implements View
                 handler.sendEmptyMessageDelayed(1, 5000);//当手指移开的时候再重新发送消息（隐藏控制面板）
             }
         });
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+            vv.setOnInfoListener(new MediaPlayer.OnInfoListener() {
+                @Override
+                public boolean onInfo(MediaPlayer mp, int what, int extra) {
+                    switch (what) {
+                        //拖动卡，缓存卡
+                        case MediaPlayer.MEDIA_INFO_BUFFERING_START:
+                            ll_buffering.setVisibility(View.VISIBLE);
+                            break;
+                        //拖动卡，缓存卡结束
+                        case MediaPlayer.MEDIA_INFO_BUFFERING_END:
+                            ll_buffering.setVisibility(View.GONE);
+                            break;
+                    }
+
+                    return true;
+                }
+            });
+        }
+
+
     }
 
     //具体的实时方法：（声音随这不断拖动不断变化）
@@ -653,14 +679,15 @@ public class SystemVideoPlayerActivity extends AppCompatActivity implements View
                 //如果是最后一个视频设置下一个按钮为灰色并且不可点击
                 btnNext.setBackgroundResource(R.drawable.btn_next_gray);
                 btnNext.setEnabled(false);
-            } else if (uri != null) {
-                //如果播放地址为空（即没有视频可播两个按钮均不可点击）
-                setEnable(false);
-            }
+            }//修改一个小bug当只有一个地址的时候两个按钮都是灰色的
+        } else if (uri != null) {
+            //如果播放地址为空（即没有视频可播两个按钮均不可点击）
+            setEnable(false);
         }
-
-
     }
+
+
+
 
     //设置按钮是否可点（即可点击时为正常状态、不可点时为灰色）
     private void setEnable(boolean b) {
