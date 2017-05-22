@@ -437,7 +437,7 @@ public class SystemVideoPlayerActivity extends AppCompatActivity implements View
         return super.onTouchEvent(event);
     }
 
-    //
+    //重写keydown方法或keyon方法控制按键调节音量的大小
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) {
