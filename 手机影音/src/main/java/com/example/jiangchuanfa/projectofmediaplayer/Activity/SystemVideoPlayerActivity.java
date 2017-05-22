@@ -42,6 +42,7 @@ public class SystemVideoPlayerActivity extends AppCompatActivity implements View
 
     private static final int PROGRESS = 0;
     private static final int HIDE_MEDIA_CONTROLLER = 1;
+    private static final int SHOW_NET_SPEED = 2;
     private static final int DEFUALT_SCREEN = 0;
     private static final int FULL_SCREEN = 1;
     private VideoView vv;
@@ -87,7 +88,11 @@ public class SystemVideoPlayerActivity extends AppCompatActivity implements View
     //是否静音
     private boolean isMute = false;
     private LinearLayout ll_buffering;
+    private LinearLayout ll_loading;
     private TextView tv_net_speed;
+    private TextView tv_loading_net_speed;
+    private boolean isNetUri = true;
+
 
     /**
      * Find the Views in the layout<br />
@@ -116,6 +121,8 @@ public class SystemVideoPlayerActivity extends AppCompatActivity implements View
         vv = (VideoView) findViewById(R.id.vv);
         ll_buffering = (LinearLayout) findViewById(R.id.ll_buffering);
         tv_net_speed = (TextView) findViewById(R.id.tv_net_speed);
+        ll_loading = (LinearLayout) findViewById(R.id.ll_loading);
+        tv_loading_net_speed = (TextView) findViewById(R.id.tv_loading_net_speed);
 
         btnVoice.setOnClickListener(this);
         btnSwitchPlayer.setOnClickListener(this);
@@ -128,6 +135,8 @@ public class SystemVideoPlayerActivity extends AppCompatActivity implements View
         //音量的取值范围在（0-15）之间取值（姑且认为其为16进制的吧）
         seekbarVoice.setMax(maxVoice);
         seekbarVoice.setProgress(currentVoice);
+        //发消息开始显示网速
+        handler.sendEmptyMessage(SHOW_NET_SPEED);
     }
 
 
@@ -226,12 +235,21 @@ public class SystemVideoPlayerActivity extends AppCompatActivity implements View
         }
     }
 
-
+    private int preCurrentPosition;
     private Handler handler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
             switch (msg.what) {
+                case SHOW_NET_SPEED:
+                    if (isNetUri) {
+                        String netSpeed = utils.getNetSpeed(SystemVideoPlayerActivity.this);
+                        tv_loading_net_speed.setText("正在加载中...." + netSpeed);
+                        tv_net_speed.setText("正在缓冲...." + netSpeed);
+                        sendEmptyMessageDelayed(SHOW_NET_SPEED, 1000);
+                    }
+                    break;
+
                 case PROGRESS:
                     //得到当前进度
                     int currentPosition = vv.getCurrentPosition();
@@ -242,6 +260,25 @@ public class SystemVideoPlayerActivity extends AppCompatActivity implements View
                     tvCurrentTime.setText(utils.stringForTime(currentPosition));
                     //得到系统时间
                     tvSystemTime.setText(getSystemTime());
+                    if (isNetUri) {
+                        int bufferPercentage = vv.getBufferPercentage();
+                        int totalBuffer = bufferPercentage * seekbarVideo.getMax();
+                        int secondaryProgress = totalBuffer / 100;
+                        seekbarVideo.setSecondaryProgress(secondaryProgress);
+                    } else {
+                        seekbarVideo.setSecondaryProgress(0);
+                    }
+                      //卡与不卡
+                    if (isNetUri && vv.isPlaying()) {
+                        int duration = currentPosition - preCurrentPosition;
+                        if (duration < 500) {
+                            ll_buffering.setVisibility(View.VISIBLE);
+                        } else {
+                            ll_buffering.setVisibility(View.GONE);
+                        }
+
+                        preCurrentPosition = currentPosition;
+                    }
 
                     //循环发消息
                     sendEmptyMessageDelayed(PROGRESS, 1000);
@@ -281,11 +318,14 @@ public class SystemVideoPlayerActivity extends AppCompatActivity implements View
             MediaItem mediaItem = mediaItems.get(position);
             tvName.setText(mediaItem.getName());
             vv.setVideoPath(mediaItem.getData());
+            isNetUri = utils.isNetUri(mediaItem.getData());
 
         } else if (uri != null) {
             //设置播放地址
             vv.setVideoURI(uri);
             tvName.setText(uri.toString());
+
+            isNetUri = utils.isNetUri(uri.toString());
         }
         //一进来变设置按钮的状态
         setButtonStatus();
@@ -533,6 +573,8 @@ public class SystemVideoPlayerActivity extends AppCompatActivity implements View
                 vv.start();//开始播放
                 //发消息开始更新播放进度
                 handler.sendEmptyMessage(PROGRESS);
+                //隐藏加载效果画面
+                ll_loading.setVisibility(View.GONE);
                 //进入播放模式先隐藏控制的布局
                 hideMediaController();
                 //设置默认屏幕
@@ -626,12 +668,12 @@ public class SystemVideoPlayerActivity extends AppCompatActivity implements View
 
     private void startVitamioPlayer() {
         Intent intent = new Intent(this, VitamioVideoPlayerActivity.class);
-        if(mediaItems !=null && mediaItems.size()>0) {
+        if (mediaItems != null && mediaItems.size() > 0) {
             Bundle bundle = new Bundle();
             bundle.putSerializable("videolist", mediaItems);
             intent.putExtra("position", position);
             intent.putExtras(bundle);
-        }else if(uri != null) {
+        } else if (uri != null) {
             intent.setData(uri);
         }
         startActivity(intent);
@@ -658,6 +700,8 @@ public class SystemVideoPlayerActivity extends AppCompatActivity implements View
         position++;//在这加号在前于灾后都是一样的
         if (position < mediaItems.size()) {
             MediaItem mediaItem = mediaItems.get(position);
+            isNetUri = utils.isNetUri(mediaItem.getData());
+            ll_loading.setVisibility(View.VISIBLE);
             vv.setVideoPath(mediaItem.getData());
             tvName.setText(mediaItem.getName());
             setButtonStatus();
@@ -674,6 +718,8 @@ public class SystemVideoPlayerActivity extends AppCompatActivity implements View
         position--;
         if (position > 0) {
             MediaItem mediaItem = mediaItems.get(position);
+            isNetUri = utils.isNetUri(mediaItem.getData());
+            ll_loading.setVisibility(View.VISIBLE);
             vv.setVideoPath(mediaItem.getData());
             tvName.setText(mediaItem.getName());
             setButtonStatus();

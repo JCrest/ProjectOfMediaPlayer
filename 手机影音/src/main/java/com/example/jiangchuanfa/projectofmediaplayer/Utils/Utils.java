@@ -1,5 +1,8 @@
 package com.example.jiangchuanfa.projectofmediaplayer.Utils;
 
+import android.content.Context;
+import android.net.TrafficStats;
+
 import java.util.Formatter;
 import java.util.Locale;
 
@@ -12,6 +15,9 @@ public class Utils {
     private StringBuilder mFormatBuilder;
     private Formatter mFormatter;
 
+    private long lastTotalRxBytes = 0;
+    private long lastTimeStamp = 0;
+
     public Utils() {
         // 转换成字符串的时间
         mFormatBuilder = new StringBuilder();
@@ -21,6 +27,7 @@ public class Utils {
 
     /**
      * 把毫秒转换成：1:20:30这里形式
+     *
      * @param timeMs
      * @return
      */
@@ -40,11 +47,8 @@ public class Utils {
             return mFormatter.format("%02d:%02d", minutes, seconds).toString();
         }
     }
-    /**
-     * 是否是网络资源
-     * @param data
-     * @return
-     */
+
+    //是否是网络资源
     public boolean isNetUri(String data) {
         boolean isNetUri = false;
         if (data != null) {
@@ -55,5 +59,16 @@ public class Utils {
         }
         return isNetUri;
     }
+
+    public String getNetSpeed(Context context) {
+        long nowTotalRxBytes = TrafficStats.getUidRxBytes(context.getApplicationInfo().uid) == TrafficStats.UNSUPPORTED ? 0 : (TrafficStats.getTotalRxBytes() / 1024);//转为KB;
+        long nowTimeStamp = System.currentTimeMillis();
+        long speed = ((nowTotalRxBytes - lastTotalRxBytes) * 1000 / (nowTimeStamp - lastTimeStamp));//毫秒转换
+        lastTimeStamp = nowTimeStamp;
+        lastTotalRxBytes = nowTotalRxBytes;
+        String msg = String.valueOf(speed) + " kb/s";
+        return msg;
+    }
+
 
 }

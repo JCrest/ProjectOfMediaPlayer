@@ -44,6 +44,9 @@ public class VitamioVideoPlayerActivity extends AppCompatActivity implements Vie
 
     private static final int PROGRESS = 0;
     private static final int HIDE_MEDIA_CONTROLLER = 1;
+    private static final int SHOW_NET_SPEED = 2;
+
+
     private static final int DEFUALT_SCREEN = 0;
     private static final int FULL_SCREEN = 1;
     private VitamioVideoView vv;
@@ -88,8 +91,11 @@ public class VitamioVideoPlayerActivity extends AppCompatActivity implements Vie
     private int maxVoice;
     //是否静音
     private boolean isMute = false;
+    private boolean isNetUri = true;
     private LinearLayout ll_buffering;
     private TextView tv_net_speed;
+    private LinearLayout ll_loading;
+    private TextView tv_loading_net_speed;
 
     /**
      * Find the Views in the layout<br />
@@ -120,6 +126,9 @@ public class VitamioVideoPlayerActivity extends AppCompatActivity implements Vie
         vv = (VitamioVideoView) findViewById(R.id.vv);
         ll_buffering = (LinearLayout) findViewById(R.id.ll_buffering);
         tv_net_speed = (TextView) findViewById(R.id.tv_net_speed);
+        ll_loading = (LinearLayout)findViewById(R.id.ll_loading);
+        tv_loading_net_speed = (TextView)findViewById(R.id.tv_loading_net_speed);
+
 
         btnVoice.setOnClickListener(this);
         btnSwitchPlayer.setOnClickListener(this);
@@ -132,6 +141,8 @@ public class VitamioVideoPlayerActivity extends AppCompatActivity implements Vie
         //音量的取值范围在（0-15）之间取值（姑且认为其为16进制的吧）
         seekbarVoice.setMax(maxVoice);
         seekbarVoice.setProgress(currentVoice);
+        //发消息开始显示网速
+        handler.sendEmptyMessage(SHOW_NET_SPEED);
     }
 
 
@@ -236,6 +247,16 @@ public class VitamioVideoPlayerActivity extends AppCompatActivity implements Vie
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
             switch (msg.what) {
+                case SHOW_NET_SPEED:
+                    if(isNetUri){
+                        String netSpeed = utils.getNetSpeed(VitamioVideoPlayerActivity.this);
+                        tv_loading_net_speed.setText("正在加载中...."+netSpeed);
+
+                        tv_net_speed.setText("正在缓冲...."+netSpeed);
+                        sendEmptyMessageDelayed(SHOW_NET_SPEED,1000);
+                    }
+                    break;
+
                 case PROGRESS:
                     //得到当前进度
                     int currentPosition = (int) vv.getCurrentPosition();
@@ -537,6 +558,8 @@ public class VitamioVideoPlayerActivity extends AppCompatActivity implements Vie
                 vv.start();//开始播放
                 //发消息开始更新播放进度
                 handler.sendEmptyMessage(PROGRESS);
+                //隐藏加载效果画面
+                ll_loading.setVisibility(View.GONE);
                 //进入播放模式先隐藏控制的布局
                 hideMediaController();
                 //设置默认屏幕
@@ -653,6 +676,9 @@ public class VitamioVideoPlayerActivity extends AppCompatActivity implements Vie
         position++;//在这加号在前于灾后都是一样的
         if (position < mediaItems.size()) {
             MediaItem mediaItem = mediaItems.get(position);
+            isNetUri = utils.isNetUri(mediaItem.getData());
+            ll_loading.setVisibility(View.VISIBLE);
+
             vv.setVideoPath(mediaItem.getData());
             tvName.setText(mediaItem.getName());
             setButtonStatus();
@@ -669,6 +695,8 @@ public class VitamioVideoPlayerActivity extends AppCompatActivity implements Vie
         position--;
         if (position > 0) {
             MediaItem mediaItem = mediaItems.get(position);
+            isNetUri = utils.isNetUri(mediaItem.getData());
+            ll_loading.setVisibility(View.VISIBLE);
             vv.setVideoPath(mediaItem.getData());
             tvName.setText(mediaItem.getName());
             setButtonStatus();
