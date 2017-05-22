@@ -14,6 +14,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.GestureDetector;
+import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
@@ -397,12 +398,12 @@ public class SystemVideoPlayerActivity extends AppCompatActivity implements View
     public boolean onTouchEvent(MotionEvent event) {
         //把事件交给手势识别器解析
         detector.onTouchEvent(event);
-        switch (event.getAction()){
+        switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
                 //1.记录相关参数
                 dowY = event.getY();
                 mVol = am.getStreamVolume(AudioManager.STREAM_MUSIC);
-                touchRang = Math.min(screenHeight,screenWidth);//screenHeight
+                touchRang = Math.min(screenHeight, screenWidth);//screenHeight
                 handler.removeMessages(HIDE_MEDIA_CONTROLLER);
                 break;
             case MotionEvent.ACTION_MOVE:
@@ -412,12 +413,12 @@ public class SystemVideoPlayerActivity extends AppCompatActivity implements View
                 float distanceY = dowY - endY;
                 //原理：在屏幕滑动的距离： 滑动的总距离 = 要改变的声音： 最大声音
                 //要改变的声音 = （在屏幕滑动的距离/ 滑动的总距离）*最大声音;
-                float delta = (distanceY/touchRang)*maxVoice;
+                float delta = (distanceY / touchRang) * maxVoice;
 
 
-                if(delta != 0){
+                if (delta != 0) {
                     //最终声音 = 原来的+ 要改变的声音
-                    int mVoice = (int) Math.min(Math.max(mVol+delta,0),maxVoice);
+                    int mVoice = (int) Math.min(Math.max(mVol + delta, 0), maxVoice);
                     //0~15
 
                     updateVoiceProgress(mVoice);
@@ -430,13 +431,40 @@ public class SystemVideoPlayerActivity extends AppCompatActivity implements View
 
                 break;
             case MotionEvent.ACTION_UP:
-                handler.sendEmptyMessageDelayed(HIDE_MEDIA_CONTROLLER,4000);
+                handler.sendEmptyMessageDelayed(HIDE_MEDIA_CONTROLLER, 4000);
                 break;
         }
         return super.onTouchEvent(event);
     }
 
-    //自己写的方法隐藏控制视频设置
+    //
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) {
+            //改变音量值
+            currentVoice--;
+            updateVoiceProgress(currentVoice);
+            if (currentVoice < 0) {
+                currentVoice = 0;
+            }
+            //移除消息
+            handler.removeMessages(HIDE_MEDIA_CONTROLLER);
+            //发消息
+            handler.sendEmptyMessageDelayed(HIDE_MEDIA_CONTROLLER, 5000);
+            return true;
+        } else if (keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
+            currentVoice++;
+            updateVoiceProgress(currentVoice);
+            if (currentVoice > maxVoice) {
+                currentVoice = maxVoice;
+            }
+            handler.removeMessages(HIDE_MEDIA_CONTROLLER);
+            handler.sendEmptyMessageDelayed(HIDE_MEDIA_CONTROLLER, 5000);
+            return true;
+        }
+        return super.onKeyDown(keyCode, event);
+    }    //自己写的方法隐藏控制视频设置
+
     private void hideMediaController() {
         llBottom.setVisibility(View.GONE);
         llTop.setVisibility(View.GONE);
