@@ -38,7 +38,7 @@ import java.util.Date;
  * Created by crest on 2017/5/20.
  */
 
-public class SystemVideoPlayerActivity extends AppCompatActivity implements View.OnClickListener {
+public class VitamioVideoPlayerActivity extends AppCompatActivity implements View.OnClickListener {
 
     private static final int PROGRESS = 0;
     private static final int HIDE_MEDIA_CONTROLLER = 1;
@@ -320,7 +320,7 @@ public class SystemVideoPlayerActivity extends AppCompatActivity implements View
 
             @Override
             public boolean onDoubleTap(MotionEvent e) {
-                Toast.makeText(SystemVideoPlayerActivity.this, "双击了", Toast.LENGTH_SHORT).show();
+                Toast.makeText(VitamioVideoPlayerActivity.this, "双击了", Toast.LENGTH_SHORT).show();
                 return super.onDoubleTap(e);
             }
 
@@ -625,7 +625,7 @@ public class SystemVideoPlayerActivity extends AppCompatActivity implements View
     }
 
     private void startVitamioPlayer() {
-
+        
 
 
     }
