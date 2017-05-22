@@ -598,6 +598,12 @@ public class SystemVideoPlayerActivity extends AppCompatActivity implements View
                 hideMediaController();
                 //设置默认屏幕
                 setVideoType(0);
+                if (vv.isPlaying()) {
+                    btnStartPause.setBackgroundResource(R.drawable.btn_pause_selector);
+                } else {
+                    btnStartPause.setBackgroundResource(R.drawable.btn_start_selector);
+                }
+
             }
         });
 
@@ -686,17 +692,17 @@ public class SystemVideoPlayerActivity extends AppCompatActivity implements View
     }
 
     private void startVitamioPlayer() {
-        if(vv != null){
+        if (vv != null) {
             vv.stopPlayback();
         }
         Intent intent = new Intent(this, VitamioVideoPlayerActivity.class);
-        if(mediaItems != null && mediaItems.size() >0){
+        if (mediaItems != null && mediaItems.size() > 0) {
             Bundle bunlder = new Bundle();
-            bunlder.putSerializable("videolist",mediaItems);
-            intent.putExtra("position",position);
+            bunlder.putSerializable("videolist", mediaItems);
+            intent.putExtra("position", position);
             //放入Bundler
             intent.putExtras(bunlder);
-        }else if(uri != null){
+        } else if (uri != null) {
             intent.setData(uri);
         }
         startActivity(intent);
