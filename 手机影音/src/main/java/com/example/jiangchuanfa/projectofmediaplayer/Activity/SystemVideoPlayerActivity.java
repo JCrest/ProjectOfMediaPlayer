@@ -625,7 +625,16 @@ public class SystemVideoPlayerActivity extends AppCompatActivity implements View
     }
 
     private void startVitamioPlayer() {
-
+        Intent intent = new Intent(this, VitamioVideoPlayerActivity.class);
+        if(mediaItems !=null && mediaItems.size()>0) {
+            Bundle bundle = new Bundle();
+            bundle.putSerializable("videolist", mediaItems);
+            intent.putExtra("position", position);
+            intent.putExtras(bundle);
+        }else if(uri != null) {
+            intent.setData(uri);
+        }
+        startActivity(intent);
 
 
     }
@@ -693,8 +702,6 @@ public class SystemVideoPlayerActivity extends AppCompatActivity implements View
             setEnable(false);
         }
     }
-
-
 
 
     //设置按钮是否可点（即可点击时为正常状态、不可点时为灰色）

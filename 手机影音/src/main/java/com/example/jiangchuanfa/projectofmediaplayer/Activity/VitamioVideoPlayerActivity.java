@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.media.AudioManager;
-import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -25,7 +24,7 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.jiangchuanfa.projectofmediaplayer.CustomView.VideoView;
+import com.example.jiangchuanfa.projectofmediaplayer.CustomView.VitamioVideoView;
 import com.example.jiangchuanfa.projectofmediaplayer.DoMain.MediaItem;
 import com.example.jiangchuanfa.projectofmediaplayer.R;
 import com.example.jiangchuanfa.projectofmediaplayer.Utils.Utils;
@@ -33,6 +32,9 @@ import com.example.jiangchuanfa.projectofmediaplayer.Utils.Utils;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+
+import io.vov.vitamio.MediaPlayer;
+import io.vov.vitamio.Vitamio;
 
 /**
  * Created by crest on 2017/5/20.
@@ -44,7 +46,7 @@ public class VitamioVideoPlayerActivity extends AppCompatActivity implements Vie
     private static final int HIDE_MEDIA_CONTROLLER = 1;
     private static final int DEFUALT_SCREEN = 0;
     private static final int FULL_SCREEN = 1;
-    private VideoView vv;
+    private VitamioVideoView vv;
     private Uri uri;
     private ArrayList<MediaItem> mediaItems;
     private LinearLayout llTop;
@@ -96,7 +98,9 @@ public class VitamioVideoPlayerActivity extends AppCompatActivity implements Vie
      * (http://www.buzzingandroid.com/tools/android-layout-finder)
      */
     private void findViews() {
-        setContentView(R.layout.activity_system_video_player);
+        //初始化解码器
+        Vitamio.isInitialized(getApplicationContext());
+        setContentView(R.layout.activity_vitamio_video_player);
         llTop = (LinearLayout) findViewById(R.id.ll_top);
         tvName = (TextView) findViewById(R.id.tv_name);
         ivBattery = (ImageView) findViewById(R.id.iv_battery);
@@ -113,7 +117,7 @@ public class VitamioVideoPlayerActivity extends AppCompatActivity implements Vie
         btnStartPause = (Button) findViewById(R.id.btn_start_pause);
         btnNext = (Button) findViewById(R.id.btn_next);
         btnSwitchScreen = (Button) findViewById(R.id.btn_switch_screen);
-        vv = (VideoView) findViewById(R.id.vv);
+        vv = (VitamioVideoView) findViewById(R.id.vv);
         ll_buffering = (LinearLayout) findViewById(R.id.ll_buffering);
         tv_net_speed = (TextView) findViewById(R.id.tv_net_speed);
 
@@ -234,7 +238,7 @@ public class VitamioVideoPlayerActivity extends AppCompatActivity implements Vie
             switch (msg.what) {
                 case PROGRESS:
                     //得到当前进度
-                    int currentPosition = vv.getCurrentPosition();
+                    int currentPosition = (int) vv.getCurrentPosition();
                     //让SeekBar进度更新
                     seekbarVideo.setProgress(currentPosition);
 
@@ -525,7 +529,7 @@ public class VitamioVideoPlayerActivity extends AppCompatActivity implements Vie
                 videoWidth = mp.getVideoWidth();
                 videoHeight = mp.getVideoHeight();
                 //得到视频的总时长
-                int duration = vv.getDuration();
+                int duration = (int) vv.getDuration();
                 seekbarVideo.setMax(duration);
                 //设置文本总时间
                 tvDuration.setText(utils.stringForTime(duration));
