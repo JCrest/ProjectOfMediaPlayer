@@ -746,7 +746,7 @@ public class VitamioVideoPlayerActivity extends AppCompatActivity implements Vie
     //设置播放上一个
     private void setPreVedio() {
         position--;
-        if (position > 0) {
+        if (position >= 0) {
             MediaItem mediaItem = mediaItems.get(position);
             isNetUri = utils.isNetUri(mediaItem.getData());
             ll_loading.setVisibility(View.VISIBLE);
