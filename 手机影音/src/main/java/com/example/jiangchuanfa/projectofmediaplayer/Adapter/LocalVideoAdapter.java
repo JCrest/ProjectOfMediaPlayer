@@ -19,23 +19,23 @@ import java.util.ArrayList;
 
 public class LocalVideoAdapter extends BaseAdapter {
     private final Context context;
-    private final ArrayList<MediaItem> datas;
+    private final ArrayList<MediaItem> mediaItems;
     private Utils utils;
 
     public LocalVideoAdapter(Context context, ArrayList<MediaItem> mediaItems) {
         this.context = context;
-        this.datas = mediaItems;
+        this.mediaItems = mediaItems;
         utils = new Utils();
     }
 
     @Override
     public int getCount() {
-        return datas == null ? 0 : datas.size();
+        return mediaItems == null ? 0 : mediaItems.size();
     }
 
     @Override
     public MediaItem getItem(int position) {
-        return datas.get(position);
+        return mediaItems.get(position);
     }
 
     @Override
@@ -58,7 +58,7 @@ public class LocalVideoAdapter extends BaseAdapter {
         }
 
         //根据位置得到对应的数据
-        MediaItem mediaItem = datas.get(position);
+        MediaItem mediaItem = mediaItems.get(position);
         viewHolder.tv_name.setText(mediaItem.getName());
         viewHolder.tv_size.setText(Formatter.formatFileSize(context,mediaItem.getSize()));
         viewHolder.tv_duration.setText(utils.stringForTime((int) mediaItem.getDuration()));

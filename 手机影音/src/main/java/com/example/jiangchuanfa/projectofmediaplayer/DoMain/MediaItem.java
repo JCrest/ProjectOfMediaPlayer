@@ -10,10 +10,19 @@ import java.io.Serializable;
 
 public class MediaItem implements Serializable {
 
-    private String name;
+    public String name;
     private long duration;
     private long size;
-    private String data;
+    public String data;
+
+    public MediaItem(String name, String data) {
+        this.name = name;
+        this.data = data;
+    }
+
+    public MediaItem() {
+
+    }
 
     public String getName() {
         return name;

@@ -45,11 +45,14 @@ public class LocalVideoPager extends BaseFragment {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 //得到点击item对应的对象
 //                MediaItem mediaItem = mediaItems.get(position);
+//                Log.e("TAG", "mediaItem==" + mediaItem);
 //
 //                MediaItem item = adapter.getItem(position);
 //                //Toast.makeText(context, ""+item.toString(), Toast.LENGTH_SHORT).show();
 //                Intent intent = new Intent(context,SystemVideoPlayerActivity.class);
 //                intent.setDataAndType(Uri.parse(item.getData()),"video/*");
+
+
                 Intent intent = new Intent(context, SystemVideoPlayerActivity.class);
                 Bundle bundle = new Bundle();
                 bundle.putSerializable("videolist",mediaItems);

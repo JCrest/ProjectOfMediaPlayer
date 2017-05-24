@@ -20,6 +20,7 @@ import android.view.GestureDetector;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -88,6 +89,17 @@ public class SystemVideoPlayerActivity extends AppCompatActivity implements View
     //设置最大音量
     private int maxVoice;
     //是否静音
+
+    private float mBrightness = -1f;//亮度
+
+
+
+
+
+
+
+
+
     private boolean isMute = false;
     private LinearLayout ll_buffering;
     private LinearLayout ll_loading;
@@ -405,6 +417,8 @@ public class SystemVideoPlayerActivity extends AppCompatActivity implements View
         am = (AudioManager) getSystemService(AUDIO_SERVICE);
         currentVoice = am.getStreamVolume(AudioManager.STREAM_MUSIC);
         maxVoice = am.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
+        //currentBright = getWindow().getAttributes();
+
 
     }
 
@@ -452,6 +466,8 @@ public class SystemVideoPlayerActivity extends AppCompatActivity implements View
 //    }
 
     //记录坐标
+    private float dowX;
+
     private float dowY;
     //滑动的初始声音
     private int mVol;
@@ -466,6 +482,7 @@ public class SystemVideoPlayerActivity extends AppCompatActivity implements View
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
                 //1.记录相关参数
+                dowX = event.getX();
                 dowY = event.getY();
                 mVol = am.getStreamVolume(AudioManager.STREAM_MUSIC);
                 touchRang = Math.min(screenHeight, screenWidth);//screenHeight
@@ -474,20 +491,56 @@ public class SystemVideoPlayerActivity extends AppCompatActivity implements View
             case MotionEvent.ACTION_MOVE:
                 //2.滑动的时候来到新的位置
                 float endY = event.getY();
+                //Log.e("TAG","============================"+endY);
                 //3.计算滑动的距离
                 float distanceY = dowY - endY;
+                //Log.e("TAG","============================"+distanceY);
                 //原理：在屏幕滑动的距离： 滑动的总距离 = 要改变的声音： 最大声音
                 //要改变的声音 = （在屏幕滑动的距离/ 滑动的总距离）*最大声音;
-                float delta = (distanceY / touchRang) * maxVoice;
+
+                if(dowX>screenWidth/2) {
+                    float delta = (distanceY / screenHeight) * maxVoice;
+                    if (delta != 0) {
+                        //最终声音 = 原来的+ 要改变的声音
+                        int mVoice = (int) Math.min(Math.max(mVol + delta, 0), maxVoice);
+                        //0~15
+                        updateVoiceProgress(mVoice);
+                    }
+                }else {
+//                    WindowManager.LayoutParams lpa = getWindow().getAttributes();
+//                    //lpa.screenBrightness = mBrightness + (distanceY) / screenWidth;
+//                    lpa.screenBrightness = distanceY / screenWidth*1f;
+//                    if (lpa.screenBrightness > 1.0f)
+//                        lpa.screenBrightness = 1.0f;
+//                    else if (lpa.screenBrightness < 0.01f)
+//                        lpa.screenBrightness = 0.01f;
+//                    getWindow().setAttributes(lpa);
 
 
-                if (delta != 0) {
-                    //最终声音 = 原来的+ 要改变的声音
-                    int mVoice = (int) Math.min(Math.max(mVol + delta, 0), maxVoice);
-                    //0~15
+                    WindowManager.LayoutParams layoutParams = getWindow().getAttributes();
+                    Log.e("TAG","============================"+layoutParams);
 
-                    updateVoiceProgress(mVoice);
+                    //屏幕的亮度,最大是255
+                   // layoutParams.screenBrightness = layoutParams.screenBrightness + distanceY / 255f;
+                    layoutParams.screenBrightness = layoutParams.screenBrightness +distanceY/screenHeight;
+                    Log.e("TAG","============================"+layoutParams.screenBrightness);
+                    if (layoutParams.screenBrightness > 1) {
+                        layoutParams.screenBrightness = 1;
+                    } else if (layoutParams.screenBrightness < 0) {
+                        layoutParams.screenBrightness = 0.01f;
+                    }
+                    getWindow().setAttributes(layoutParams);
+
+
+//
+//                    WindowManager.LayoutParams params = getWindow().getAttributes();
+//                    Log.e("TAG","PARAM=="+params);
+//                  //  params.screenBrightness = value / 255f;
+//                    params.screenBrightness = (distanceY / touchRang) *1f;
+//                    getWindow().setAttributes(params);
                 }
+
+
 
 
                 //注意不要重新赋值
