@@ -68,6 +68,7 @@
                 android:minHeight="5dp"
                 android:progress="20"
                 android:progressDrawable="@drawable/progress_horizontal"
+                android:splitTrack="false"
                 android:thumb="@drawable/progress_thumb" />
 
             <Button
@@ -114,6 +115,7 @@
                 android:minHeight="5dp"
                 android:progress="20"
                 android:progressDrawable="@drawable/progress_horizontal"
+                android:splitTrack="false"
                 android:thumb="@drawable/progress_thumb" />
 
             <TextView

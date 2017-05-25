@@ -61,6 +61,7 @@
             android:maxHeight="3dp"
             android:minHeight="3dp"
             android:progress="20"
+            android:splitTrack="false"
             android:progressDrawable="@drawable/progress_horizontal_audio"
             android:thumb="@drawable/seek_thumb" />
 
