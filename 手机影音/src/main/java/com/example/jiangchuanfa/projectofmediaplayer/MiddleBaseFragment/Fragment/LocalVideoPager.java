@@ -78,7 +78,7 @@ public class LocalVideoPager extends BaseFragment {
                 //有数据,隐藏一开始显示的页面
                 tv_nodata.setVisibility(View.GONE);
                 //设置适配器，让数据显示出来来
-                adapter = new LocalVideoAdapter(context,mediaItems);
+                adapter = new LocalVideoAdapter(context,mediaItems, true);
                 lv.setAdapter(adapter);
             }else{
                 //没有数据
