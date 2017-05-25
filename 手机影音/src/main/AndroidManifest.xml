@@ -287,7 +287,15 @@
         <activity android:name=".Activity.AudioPlayerActivity">
 
         </activity>
-        <service android:name=".Servise.MusicPlayService"/>
+        <service android:name=".Servise.MusicPlayService">
+<intent-filter>
+    <action android:name="com.example.jiangchuanfa.projectofmediaplayer.Servise.MUSICPLAYSERVICE"/>
+
+</intent-filter>
+
+
+        </service>
+
 
     </application>
 

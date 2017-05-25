@@ -102,6 +102,7 @@ public class MusicPlayService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
+        Log.e("TAG","MusicPlayService-------------------onCreate()");
         //加载数据列表，为甚不加载布局；因为service和activity不一样她没有布局，她是后台运行的没有布局
         getData();
 
@@ -170,6 +171,7 @@ public class MusicPlayService extends Service {
                         next();//播放完成也是继续下一个
                     }
                 });
+                mediaPlayer.prepareAsync();
             } catch (IOException e) {
                 e.printStackTrace();
             }
