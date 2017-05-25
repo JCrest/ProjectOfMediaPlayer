@@ -1,13 +1,19 @@
 package com.example.jiangchuanfa.projectofmediaplayer.Activity;
 
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.graphics.drawable.AnimationDrawable;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Message;
 import android.os.RemoteException;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -18,6 +24,7 @@ import android.widget.TextView;
 import com.example.jiangchuanfa.projectofmediaplayer.IMusicPlayService;
 import com.example.jiangchuanfa.projectofmediaplayer.R;
 import com.example.jiangchuanfa.projectofmediaplayer.Servise.MusicPlayService;
+import com.example.jiangchuanfa.projectofmediaplayer.Utils.Utils;
 
 import static com.example.jiangchuanfa.projectofmediaplayer.R.id.iv_icon;
 
@@ -39,6 +46,37 @@ public class AudioPlayerActivity extends AppCompatActivity implements View.OnCli
     private Button btnLyrics;
     private IMusicPlayService service;
     private int position;
+    private MyReceiver receiver;
+
+    private Utils utils;
+
+    private final static int PROGRESS = 0;
+
+    private Handler handler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            switch (msg.what) {
+                case 0:
+                    try {
+                        int currentPosition = service.getCurrentPosition();
+                        seekbarAudio.setProgress(currentPosition);
+
+                        tvTime.setText(utils.stringForTime(currentPosition) + "/" + utils.stringForTime(service.getDuration()));
+                    } catch (RemoteException e) {
+                        e.printStackTrace();
+                    }
+                    removeMessages(0);
+                    sendEmptyMessageDelayed(0, 1000);
+
+
+                    break;
+            }
+
+        }
+    };
+
+
     private ServiceConnection conon = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder iBind) {
@@ -129,25 +167,65 @@ public class AudioPlayerActivity extends AppCompatActivity implements View.OnCli
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        initData();
 
         findViews();
         getData();
         startAndBindService();
     }
 
+    private void initData() {
+        //注册光播
+        receiver = new MyReceiver();
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(MusicPlayService.OPEN_COMPLETE);
+        registerReceiver(receiver, intentFilter);
+        utils = new Utils();
+
+    }
+
+    class MyReceiver extends BroadcastReceiver {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            setViewData();
+
+        }
+    }
+
+    private void setViewData() {
+        try {
+            tvArtist.setText(service.getArtistName());
+            tvAudioName.setText(service.getAudioName());
+            int duration = service.getDuration();
+            seekbarAudio.setMax(duration);
+            Log.e("TAG", "----------duration----------------" + duration);
+        } catch (RemoteException e) {
+            e.printStackTrace();
+        }
+        handler.sendEmptyMessage(0);
+
+
+    }
+
     private void getData() {
-        position = getIntent().getIntExtra("position",0);
+        position = getIntent().getIntExtra("position", 0);
 
     }
 
     @Override
     protected void onDestroy() {
-        super.onDestroy();
-        if(conon !=null) {
+        //解绑服务
+        if (conon != null) {
             unbindService(conon);
             conon = null;
         }
-
+        //取消注册广播
+        if (receiver != null) {
+            unregisterReceiver(receiver);
+            receiver = null;
+        }
+        super.onDestroy();
     }
 
     private void startAndBindService() {

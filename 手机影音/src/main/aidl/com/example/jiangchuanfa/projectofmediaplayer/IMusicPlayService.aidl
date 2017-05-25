@@ -17,7 +17,7 @@ interface IMusicPlayService {
 
             void pause();
 
-            String artistName();
+            String getArtistName();
 
             String getAudioName();
 

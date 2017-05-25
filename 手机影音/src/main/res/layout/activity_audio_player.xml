@@ -21,7 +21,6 @@
             android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
             android:layout_marginTop="50dp"
-            android:text="张国荣"
             android:textColor="#ffffff"
             android:textSize="18sp" />
 
@@ -31,7 +30,6 @@
             android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
             android:layout_marginTop="75dp"
-            android:text="当年情"
             android:textColor="#ffffff"
             android:textSize="15sp" />
 
@@ -50,7 +48,6 @@
             android:layout_height="wrap_content"
             android:gravity="right"
             android:paddingRight="20dp"
-            android:text="00:00/10:00"
             android:textColor="#ffffff" />
 
         <SeekBar

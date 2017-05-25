@@ -52,8 +52,8 @@ public class MusicPlayService extends Service {
         }
 
         @Override
-        public String artistName() throws RemoteException {
-            return service.artistName();
+        public String getArtistName() throws RemoteException {
+            return service.getArtistName();
         }
 
         @Override
@@ -194,30 +194,32 @@ public class MusicPlayService extends Service {
         mediaPlayer.pause();
     }
 
-    public String artistName() {
-        return "";
+    public String getArtistName() {
+        return mediaItem.getArtist();
     }
 
     public String getAudioName() {
-        return "";
+        return mediaItem.getName();
     }
 
     public String getAudioPath() {
-        return "";
+        return mediaItem.getData();
     }
 
     public int getDuration() {
-        return 0;
+        return mediaPlayer.getDuration();
     }
 
     public int getCurrentPosition() {
-        return 0;
+        return mediaPlayer.getCurrentPosition();
     }
 
     public void seekTo(int position) {
+        mediaPlayer.seekTo(position);
     }
 
     public void next() {
+
     }
 
     public void pre() {
