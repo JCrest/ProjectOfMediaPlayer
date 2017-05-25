@@ -127,7 +127,36 @@ public class AudioPlayerActivity extends AppCompatActivity implements View.OnCli
         btnStartPause.setOnClickListener(this);
         btnNext.setOnClickListener(this);
         btnLyrics.setOnClickListener(this);
+        //设置seekbar状态改变的监听事件，以内部类接口的方式实现，与视频的设置形成对比可以比较两种方法优缺点
+        seekbarAudio.setOnSeekBarChangeListener(new MyOnSeekBarChangeListener());
+
+
     }
+
+    class MyOnSeekBarChangeListener implements SeekBar.OnSeekBarChangeListener {
+
+        @Override
+        public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+            if(fromUser) {
+                try {
+                    service.seekTo(progress);
+                } catch (RemoteException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        @Override
+        public void onStartTrackingTouch(SeekBar seekBar) {
+
+        }
+
+        @Override
+        public void onStopTrackingTouch(SeekBar seekBar) {
+
+        }
+    }
+
 
     /**
      * Handle button click events<br />
