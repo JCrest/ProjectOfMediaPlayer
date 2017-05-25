@@ -76,7 +76,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:background="@drawable/btn_now_playing_normal_order"
+                android:background="@drawable/btn_playmode_normal_selector"
                 android:paddingLeft="3dp"
                 android:paddingRight="3dp" />
 
@@ -85,7 +85,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:background="@drawable/btn_now_playing_play_prevoius"
+                android:background="@drawable/btn_pre_audio_selector"
                 android:paddingLeft="3dp"
                 android:paddingRight="3dp" />
 
@@ -94,7 +94,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:background="@drawable/btn_now_playing_real_play"
+                android:background="@drawable/btn_audio_pause_selector"
                 android:paddingLeft="3dp"
                 android:paddingRight="3dp" />
 
@@ -103,7 +103,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:background="@drawable/btn_now_playing_play_next"
+                android:background="@drawable/btn_audio_next_selector"
                 android:paddingLeft="3dp"
                 android:paddingRight="3dp" />
 
@@ -112,7 +112,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:background="@drawable/btn_lyrics"
+                android:background="@drawable/btn_lyric_selector_selector"
                 android:paddingLeft="3dp"
                 android:paddingRight="3dp" />
 

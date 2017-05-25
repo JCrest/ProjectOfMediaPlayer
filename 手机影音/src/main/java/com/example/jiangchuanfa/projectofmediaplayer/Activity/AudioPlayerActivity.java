@@ -42,7 +42,7 @@ public class AudioPlayerActivity extends AppCompatActivity implements View.OnCli
         @Override
         public void onServiceConnected(ComponentName name, IBinder iBind) {
             service = IMusicPlayService.Stub.asInterface(iBind);
-            if(service !=null) {
+            if (service != null) {
                 try {
                     service.openAudio(4);
                 } catch (RemoteException e) {
@@ -106,6 +106,19 @@ public class AudioPlayerActivity extends AppCompatActivity implements View.OnCli
             // Handle clicks for btnPre
         } else if (v == btnStartPause) {
             // Handle clicks for btnStartPause
+            try {
+                if (service.isPlaying()) {
+                    service.pause();
+                    btnStartPause.setBackgroundResource(R.drawable.btn_audio_start_selector);
+
+                } else {
+                    service.start();
+                    btnStartPause.setBackgroundResource(R.drawable.btn_audio_pause_selector);
+                }
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
+
         } else if (v == btnNext) {
             // Handle clicks for btnNext
         } else if (v == btnLyrics) {

@@ -93,6 +93,11 @@ public class MusicPlayService extends Service {
             service.pre();
 
         }
+
+        @Override
+        public boolean isPlaying() throws RemoteException {
+            return mediaPlayer.isPlaying();
+        }
     };
     private ArrayList<MediaItem> mediaItems;
     private MediaPlayer mediaPlayer;
@@ -185,6 +190,7 @@ public class MusicPlayService extends Service {
     }
 
     public void pause() {
+        mediaPlayer.pause();
     }
 
     public String artistName() {

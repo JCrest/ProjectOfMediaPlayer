@@ -33,4 +33,6 @@ interface IMusicPlayService {
 
             void pre() ;
 
+            boolean isPlaying();
+
 }
