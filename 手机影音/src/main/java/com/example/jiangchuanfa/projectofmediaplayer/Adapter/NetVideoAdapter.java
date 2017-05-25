@@ -78,6 +78,7 @@ public class NetVideoAdapter extends BaseAdapter {
         viewHolder.tv_duration.setText(trailersBean.getVideoTitle());
         //x.Uril3缓存图片
 //        x.image().bind(viewHolder.iv_icon, trailersBean.getCoverImg(),imageOptions);
+        //这是picasso请求图片，加载图片的速度貌似略小于x.Uril3
         Picasso.with(context)
                 .load(trailersBean.getCoverImg())
                 .placeholder(R.drawable.video_default)
