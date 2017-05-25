@@ -13,8 +13,7 @@
             android:id="@+id/iv_icon"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_centerHorizontal="true"
-             />
+            android:layout_centerHorizontal="true" />
 
         <TextView
             android:id="@+id/tv_artist"
@@ -37,6 +36,91 @@
             android:textSize="15sp" />
 
     </RelativeLayout>
+
+    <LinearLayout
+        android:id="@+id/ll_bottom"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/tv_time"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="right"
+            android:paddingRight="20dp"
+            android:text="00:00/10:00"
+            android:textColor="#ffffff" />
+
+        <SeekBar
+            android:id="@+id/seekbar_audio"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:max="100"
+            android:maxHeight="3dp"
+            android:minHeight="3dp"
+            android:progress="20"
+            android:progressDrawable="@drawable/progress_horizontal_audio"
+            android:thumb="@drawable/seek_thumb" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp">
+
+            <Button
+                android:id="@+id/btn_playmode"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@drawable/btn_now_playing_normal_order"
+                android:paddingLeft="3dp"
+                android:paddingRight="3dp" />
+
+            <Button
+                android:id="@+id/btn_pre"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@drawable/btn_now_playing_play_prevoius"
+                android:paddingLeft="3dp"
+                android:paddingRight="3dp" />
+
+            <Button
+                android:id="@+id/btn_start_pause"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@drawable/btn_now_playing_real_play"
+                android:paddingLeft="3dp"
+                android:paddingRight="3dp" />
+
+            <Button
+                android:id="@+id/btn_next"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@drawable/btn_now_playing_play_next"
+                android:paddingLeft="3dp"
+                android:paddingRight="3dp" />
+
+            <Button
+                android:id="@+id/btn_lyrics"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@drawable/btn_lyrics"
+                android:paddingLeft="3dp"
+                android:paddingRight="3dp" />
+
+
+        </LinearLayout>
+
+
+    </LinearLayout>
 
 
 </RelativeLayout>
