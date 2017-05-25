@@ -103,6 +103,7 @@ public class MusicPlayService extends Service {
     private MediaPlayer mediaPlayer;
     private int position;
     private MediaItem mediaItem;
+    public static final String OPEN_COMPLETE = "com.example.jiangchuanfa.OPEN_COMPLETE";
 
     @Override
     public void onCreate() {
@@ -225,8 +226,14 @@ public class MusicPlayService extends Service {
     private class MyOnPreparedListener implements MediaPlayer.OnPreparedListener {
         @Override
         public void onPrepared(MediaPlayer mp) {
+            notifyChange(OPEN_COMPLETE );
             start();
         }
+    }
+    //发送广播
+    private void notifyChange(String action) {
+        Intent intent = new Intent(action);
+        sendBroadcast(intent);
     }
 
     private class MyOnErrorListener implements MediaPlayer.OnErrorListener {

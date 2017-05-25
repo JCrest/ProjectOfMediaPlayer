@@ -38,20 +38,18 @@ public class AudioPlayerActivity extends AppCompatActivity implements View.OnCli
     private Button btnNext;
     private Button btnLyrics;
     private IMusicPlayService service;
+    private int position;
     private ServiceConnection conon = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder iBind) {
             service = IMusicPlayService.Stub.asInterface(iBind);
             if (service != null) {
                 try {
-                    service.openAudio(4);
+                    service.openAudio(position);
                 } catch (RemoteException e) {
                     e.printStackTrace();
                 }
-
-
             }
-
         }
 
         @Override
@@ -59,6 +57,7 @@ public class AudioPlayerActivity extends AppCompatActivity implements View.OnCli
 
         }
     };
+
 
     /**
      * Find the Views in the layout<br />
@@ -132,13 +131,29 @@ public class AudioPlayerActivity extends AppCompatActivity implements View.OnCli
         super.onCreate(savedInstanceState);
 
         findViews();
+        getData();
         startAndBindService();
+    }
+
+    private void getData() {
+        position = getIntent().getIntExtra("position",0);
+
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if(conon !=null) {
+            unbindService(conon);
+            conon = null;
+        }
+
     }
 
     private void startAndBindService() {
         Intent intent = new Intent(this, MusicPlayService.class);
 //        intent.setAction("com.example.jiangchuanfa.projectofmediaplayer.Servise.MUSICPLAYSERVICE");
         bindService(intent, conon, BIND_AUTO_CREATE);
-        startService(intent);
+        startService(intent);//bind和start方法一起写目的防止多次启动服务
     }
 }
