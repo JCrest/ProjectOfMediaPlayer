@@ -335,10 +335,8 @@ public class SystemVideoPlayerActivity extends AppCompatActivity implements View
         initData();
         findViews();
         getData();
-
-
-        setListener();
         setData();
+        setListener();
 
     }
 
@@ -347,9 +345,16 @@ public class SystemVideoPlayerActivity extends AppCompatActivity implements View
         if (mediaItems != null && mediaItems.size() > 0) {
 
             MediaItem mediaItem = mediaItems.get(position);
+            Log.e("TAG","========mediaItem========="+mediaItem);
+
             tvName.setText(mediaItem.getName());
+            Log.e("TAG","========tvName========="+tvName);
+
             vv.setVideoPath(mediaItem.getData());
+            Log.e("TAG","==========vv======="+vv);
+
             isNetUri = utils.isNetUri(mediaItem.getData());
+            Log.e("TAG","=========isNetUri========"+isNetUri);
 
         } else if (uri != null) {
             //设置播放地址
@@ -366,14 +371,17 @@ public class SystemVideoPlayerActivity extends AppCompatActivity implements View
     private void getData() {
         //得到播放地址
         uri = getIntent().getData();
+        Log.e("TAG","=======uri=========="+uri);
         mediaItems = (ArrayList<MediaItem>) getIntent().getSerializableExtra("videolist");
+        Log.e("TAG","======mediaItems==========="+mediaItems);
         position = getIntent().getIntExtra("position", 0);
+        Log.e("TAG","=======position=========="+position);
+
 
     }
 
     private void initData() {
         utils = new Utils();
-
         //注册监听电量变化广播
         receiver = new MyBroadCastReceiver();
         IntentFilter intentFilter = new IntentFilter();
@@ -388,13 +396,11 @@ public class SystemVideoPlayerActivity extends AppCompatActivity implements View
                 setStartOrPause();
                 super.onLongPress(e);
             }
-
             @Override
             public boolean onDoubleTap(MotionEvent e) {
                 Toast.makeText(SystemVideoPlayerActivity.this, "双击了", Toast.LENGTH_SHORT).show();
                 return super.onDoubleTap(e);
             }
-
             @Override
             public boolean onSingleTapConfirmed(MotionEvent e) {
                 // Toast.makeText(SystemVideoPlayerActivity.this, "单击了", Toast.LENGTH_SHORT).show();
@@ -418,8 +424,6 @@ public class SystemVideoPlayerActivity extends AppCompatActivity implements View
         currentVoice = am.getStreamVolume(AudioManager.STREAM_MUSIC);
         maxVoice = am.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
         //currentBright = getWindow().getAttributes();
-
-
     }
 
 
@@ -781,6 +785,7 @@ public class SystemVideoPlayerActivity extends AppCompatActivity implements View
     //设置播放下一个
     private void setNextVedio() {
         position++;//在这加号在前于灾后都是一样的
+        Log.e("TAG","position=========================="+position);
         if (position < mediaItems.size()) {
             MediaItem mediaItem = mediaItems.get(position);
             isNetUri = utils.isNetUri(mediaItem.getData());
