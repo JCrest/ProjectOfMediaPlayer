@@ -14,7 +14,7 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.example.jiangchuanfa.projectofmediaplayer.Activity.SystemVideoPlayerActivity;
+import com.example.jiangchuanfa.projectofmediaplayer.Activity.AudioPlayerActivity;
 import com.example.jiangchuanfa.projectofmediaplayer.Adapter.LocalVideoAdapter;
 import com.example.jiangchuanfa.projectofmediaplayer.DoMain.MediaItem;
 import com.example.jiangchuanfa.projectofmediaplayer.MiddleBaseFragment.BaseFragment;
@@ -52,7 +52,7 @@ public class LocalAudioPager extends BaseFragment {
 //                intent.setDataAndType(Uri.parse(item.getData()),"video/*");
 
 
-                Intent intent = new Intent(context, SystemVideoPlayerActivity.class);
+                Intent intent = new Intent(context, AudioPlayerActivity.class);
                 Bundle bundle = new Bundle();
                 bundle.putSerializable("videolist",mediaItems);
                 Log.e("TAG","*****************mediaItems********************"+mediaItems);
