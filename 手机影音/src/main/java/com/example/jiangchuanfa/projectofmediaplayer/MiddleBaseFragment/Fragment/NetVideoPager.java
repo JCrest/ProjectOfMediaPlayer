@@ -79,9 +79,8 @@ public class NetVideoPager extends BaseFragment {
                 MoveInfo.TrailersBean item = adapter.getItem(position);
 
 
-
                 mediaItems = new ArrayList<>();
-                for(int i = 0; i <datas.size() ; i++) {
+                for (int i = 0; i < datas.size(); i++) {
                     MediaItem mediaItem = new MediaItem();
                     mediaItem.setData(datas.get(i).getUrl());
                     mediaItem.setName(datas.get(i).getMovieName());
@@ -96,7 +95,7 @@ public class NetVideoPager extends BaseFragment {
                 Intent intent = new Intent(context, SystemVideoPlayerActivity.class);
                 Bundle bundle = new Bundle();
                 bundle.putSerializable("videolist", mediaItems);
-                Log.e("TAG","mediaItems++++++++++++++++++++++++++++++++++++"+mediaItems);
+                Log.e("TAG", "mediaItems++++++++++++++++++++++++++++++++++++" + mediaItems);
                 intent.putExtra("position", position);
                 intent.putExtras(bundle);
                 startActivity(intent);
@@ -187,6 +186,7 @@ public class NetVideoPager extends BaseFragment {
 //                mediaItem.setData(datas.get(i).getUrl());
 //                mediaItem.setName(datas.get(i).getMovieName());
 //                mediaItems.add(mediaItem);
+//                mediaItem = new MediaItem();
 //                Log.e("TAG","mediaItems=========================="+mediaItems);
 //
 //            }
@@ -207,6 +207,7 @@ public class NetVideoPager extends BaseFragment {
 //                mediaItem.setData(trailersBeanList.get(i).getUrl());
 //                mediaItem.setName(trailersBeanList.get(i).getMovieName());
 //                Log.e("TAG", "xUtils联网成功===================================" + trailersBeanList.get(i).getHightUrl());
+//                mediaItem = new MediaItem();
 //                mediaItems.add(mediaItem);
 //            }
             datas.addAll(trailersBeanList);

@@ -21,10 +21,21 @@ import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
+import com.example.jiangchuanfa.projectofmediaplayer.CustomView.LyricShowView;
+import com.example.jiangchuanfa.projectofmediaplayer.DoMain.Lyric;
+import com.example.jiangchuanfa.projectofmediaplayer.DoMain.MediaItem;
 import com.example.jiangchuanfa.projectofmediaplayer.IMusicPlayService;
 import com.example.jiangchuanfa.projectofmediaplayer.R;
 import com.example.jiangchuanfa.projectofmediaplayer.Servise.MusicPlayService;
+import com.example.jiangchuanfa.projectofmediaplayer.Utils.LyricsUtils;
 import com.example.jiangchuanfa.projectofmediaplayer.Utils.Utils;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
+
+import java.io.File;
+import java.util.ArrayList;
 
 import static com.example.jiangchuanfa.projectofmediaplayer.R.id.iv_icon;
 
@@ -33,6 +44,7 @@ import static com.example.jiangchuanfa.projectofmediaplayer.R.id.iv_icon;
  */
 
 public class AudioPlayerActivity extends AppCompatActivity implements View.OnClickListener {
+
     private ImageView ivIcon;
     private TextView tvArtist;
     private TextView tvAudioName;
@@ -47,19 +59,33 @@ public class AudioPlayerActivity extends AppCompatActivity implements View.OnCli
     private IMusicPlayService service;
     private int position;
     private MyReceiver receiver;
+    private LyricShowView lyric_show_view;
+
 
     private Utils utils;
 
     private final static int PROGRESS = 0;
+    private static final int  SHOW_LYRIC = 1;
+    private boolean notification;
 
     private Handler handler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
             switch (msg.what) {
-                case 0:
+                case  SHOW_LYRIC:
                     try {
                         int currentPosition = service.getCurrentPosition();
+                        lyric_show_view.setNextShowLyric(currentPosition);
+                    } catch (RemoteException e) {
+                        e.printStackTrace();
+                    }
+                    removeMessages(SHOW_LYRIC);
+                    sendEmptyMessage(SHOW_LYRIC);
+                    break;
+                case 0:
+                    try {
+                          int currentPosition = service.getCurrentPosition();
                         seekbarAudio.setProgress(currentPosition);
 
                         tvTime.setText(utils.stringForTime(currentPosition) + "/" + utils.stringForTime(service.getDuration()));
@@ -83,7 +109,15 @@ public class AudioPlayerActivity extends AppCompatActivity implements View.OnCli
             service = IMusicPlayService.Stub.asInterface(iBind);
             if (service != null) {
                 try {
-                    service.openAudio(position);
+                    if (!notification) {
+                        service.openAudio(position);
+                    }
+//                    if(notification){
+//
+//                    } else {
+//                        service.openAudio(position);
+//                    }
+
                 } catch (RemoteException e) {
                     e.printStackTrace();
                 }
@@ -121,12 +155,14 @@ public class AudioPlayerActivity extends AppCompatActivity implements View.OnCli
         btnStartPause = (Button) findViewById(R.id.btn_start_pause);
         btnNext = (Button) findViewById(R.id.btn_next);
         btnLyrics = (Button) findViewById(R.id.btn_lyrics);
+        lyric_show_view = (LyricShowView) findViewById(R.id.lyric_show_view);
 
         btnPlaymode.setOnClickListener(this);
         btnPre.setOnClickListener(this);
         btnStartPause.setOnClickListener(this);
         btnNext.setOnClickListener(this);
         btnLyrics.setOnClickListener(this);
+
         //设置seekbar状态改变的监听事件，以内部类接口的方式实现，与视频的设置形成对比可以比较两种方法优缺点
         seekbarAudio.setOnSeekBarChangeListener(new MyOnSeekBarChangeListener());
 
@@ -137,7 +173,7 @@ public class AudioPlayerActivity extends AppCompatActivity implements View.OnCli
 
         @Override
         public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-            if(fromUser) {
+            if (fromUser) {
                 try {
                     service.seekTo(progress);
                 } catch (RemoteException e) {
@@ -211,23 +247,52 @@ public class AudioPlayerActivity extends AppCompatActivity implements View.OnCli
         registerReceiver(receiver, intentFilter);
         utils = new Utils();
 
+        //注册EventBus
+        EventBus.getDefault().register(this);
+
     }
 
     class MyReceiver extends BroadcastReceiver {
 
         @Override
         public void onReceive(Context context, Intent intent) {
-            setViewData();
+            setViewData(null);
 
         }
     }
 
-    private void setViewData() {
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void setViewData(MediaItem mediaItem) {
         try {
             tvArtist.setText(service.getArtistName());
             tvAudioName.setText(service.getAudioName());
             int duration = service.getDuration();
             seekbarAudio.setMax(duration);
+
+
+            //解析歌词
+            //1.得到歌词所在路径
+            String audioPath = service.getAudioPath();//mnt/sdcard/audio/beijingbeijing.mp3
+
+            String lyricPath = audioPath.substring(0,audioPath.lastIndexOf("."));//mnt/sdcard/audio/beijingbeijing
+            File file = new File(lyricPath+".lrc");
+            if(!file.exists()){
+                file = new File(lyricPath+".txt");
+            }
+            LyricsUtils lyricsUtils = new LyricsUtils();
+            lyricsUtils.readFile(file);
+
+            //2.传入解析歌词的工具类
+            ArrayList<Lyric> lyrics = lyricsUtils.getLyrics();
+            lyric_show_view.setLyrics(lyrics);
+
+            //3.如果有歌词，就歌词同步
+
+            if(lyricsUtils.isLyric()){
+                handler.sendEmptyMessage(SHOW_LYRIC);
+            }
+
+
             Log.e("TAG", "----------duration----------------" + duration);
         } catch (RemoteException e) {
             e.printStackTrace();
@@ -235,10 +300,17 @@ public class AudioPlayerActivity extends AppCompatActivity implements View.OnCli
         handler.sendEmptyMessage(0);
 
 
+
     }
 
     private void getData() {
-        position = getIntent().getIntExtra("position", 0);
+        notification = getIntent().getBooleanExtra("notification", false);
+        if (!notification) {
+            position = getIntent().getIntExtra("position", 0);
+
+
+        }
+
 
     }
 
@@ -253,6 +325,10 @@ public class AudioPlayerActivity extends AppCompatActivity implements View.OnCli
         if (receiver != null) {
             unregisterReceiver(receiver);
             receiver = null;
+        }
+        EventBus.getDefault().unregister(this);
+        if(handler != null){
+            handler.removeCallbacksAndMessages(null);
         }
         super.onDestroy();
     }

@@ -1,20 +1,29 @@
 package com.example.jiangchuanfa.projectofmediaplayer.Servise;
 
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.ContentResolver;
 import android.content.Intent;
 import android.database.Cursor;
 import android.media.MediaPlayer;
 import android.net.Uri;
+import android.os.Build;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.provider.MediaStore;
 import android.support.annotation.Nullable;
+import android.support.annotation.RequiresApi;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.example.jiangchuanfa.projectofmediaplayer.Activity.AudioPlayerActivity;
 import com.example.jiangchuanfa.projectofmediaplayer.DoMain.MediaItem;
 import com.example.jiangchuanfa.projectofmediaplayer.IMusicPlayService;
+import com.example.jiangchuanfa.projectofmediaplayer.R;
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -39,6 +48,7 @@ public class MusicPlayService extends Service {
 
         }
 
+        @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
         @Override
         public void start() throws RemoteException {
             service.start();
@@ -104,11 +114,12 @@ public class MusicPlayService extends Service {
     private int position;
     private MediaItem mediaItem;
     public static final String OPEN_COMPLETE = "com.example.jiangchuanfa.OPEN_COMPLETE";
+    private NotificationManager nm;
 
     @Override
     public void onCreate() {
         super.onCreate();
-        Log.e("TAG","MusicPlayService-------------------onCreate()");
+        Log.e("TAG", "MusicPlayService-------------------onCreate()");
         //加载数据列表，为甚不加载布局；因为service和activity不一样她没有布局，她是后台运行的没有布局
         getData();
 
@@ -186,12 +197,25 @@ public class MusicPlayService extends Service {
         }
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
     public void start() {
         mediaPlayer.start();
+        nm = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        Intent intent = new Intent(this, AudioPlayerActivity.class);
+        intent.putExtra("notification",true);
+        PendingIntent pi = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        Notification notifation = new Notification.Builder(this)
+                .setSmallIcon(R.drawable.notification_music_playing)
+                .setContentTitle("手机影音")
+                .setContentText("正在播放:" + getAudioName())
+                .setContentIntent(pi)
+                .build();
+        nm.notify(1, notifation);
     }
 
     public void pause() {
         mediaPlayer.pause();
+        nm.cancel(1);
     }
 
     public String getArtistName() {
@@ -226,12 +250,15 @@ public class MusicPlayService extends Service {
     }
 
     private class MyOnPreparedListener implements MediaPlayer.OnPreparedListener {
+        @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
         @Override
         public void onPrepared(MediaPlayer mp) {
-            notifyChange(OPEN_COMPLETE );
+            //notifyChange(OPEN_COMPLETE);
+            EventBus.getDefault().post(mediaItem);
             start();
         }
     }
+
     //发送广播
     private void notifyChange(String action) {
         Intent intent = new Intent(action);

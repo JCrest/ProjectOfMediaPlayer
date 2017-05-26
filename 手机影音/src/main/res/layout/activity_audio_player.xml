@@ -6,6 +6,7 @@
     android:orientation="vertical">
 
     <RelativeLayout
+        android:id="@+id/rl_top"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
@@ -118,6 +119,17 @@
 
 
     </LinearLayout>
+    <com.example.jiangchuanfa.projectofmediaplayer.CustomView.LyricShowView
+        android:paddingStart="30dp"
+        android:id="@+id/lyric_show_view"
+        android:layout_height="match_parent"
+        android:layout_above="@id/ll_bottom"
+        android:layout_below="@id/rl_top"
+        android:layout_width="match_parent"
+        />
+
+
+
 
 
 </RelativeLayout>
