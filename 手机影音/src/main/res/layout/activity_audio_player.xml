@@ -11,10 +11,17 @@
         android:layout_height="wrap_content">
 
         <ImageView
+            android:visibility="gone"
             android:id="@+id/iv_icon"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_centerHorizontal="true" />
+        <com.example.jiangchuanfa.projectofmediaplayer.CustomView.BaseVisualizerView
+            android:id="@+id/visualizerview"
+            android:layout_width="500dp"
+            android:layout_height="80dp"
+            android:layout_centerHorizontal="true"
+            />
 
         <TextView
             android:id="@+id/tv_artist"
@@ -119,17 +126,14 @@
 
 
     </LinearLayout>
+
     <com.example.jiangchuanfa.projectofmediaplayer.CustomView.LyricShowView
-        android:paddingStart="30dp"
+
         android:id="@+id/lyric_show_view"
+        android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_above="@id/ll_bottom"
-        android:layout_below="@id/rl_top"
-        android:layout_width="match_parent"
-        />
-
-
-
+        android:layout_below="@id/rl_top" />
 
 
 </RelativeLayout>

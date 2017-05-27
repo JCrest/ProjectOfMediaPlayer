@@ -10,9 +10,12 @@ import com.example.jiangchuanfa.projectofmediaplayer.MiddleBaseFragment.BaseFrag
 
 /**
  * Created by crest on 2017/5/19.
+ *
+ *
  */
 
 public class NetAudioPager extends BaseFragment {
+
     private TextView textView;
 
     @Override

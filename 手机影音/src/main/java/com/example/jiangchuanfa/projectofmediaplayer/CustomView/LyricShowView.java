@@ -9,6 +9,7 @@ import android.util.AttributeSet;
 import android.widget.TextView;
 
 import com.example.jiangchuanfa.projectofmediaplayer.DoMain.Lyric;
+import com.example.jiangchuanfa.projectofmediaplayer.Utils.DensityUtil;
 
 import java.util.ArrayList;
 
@@ -24,19 +25,22 @@ public class LyricShowView extends TextView {
     private int height;
     private ArrayList<Lyric> lyrics;
     private int index = 0;
-    private int textHeight = 65;
+    private int textHeight ;
     private int currentPosition;
+    private Context context;
 
 
     public LyricShowView(Context context, AttributeSet attrs) {
         super(context, attrs);
+        this.context = context;
         initView();
     }
 
     private void initView() {
 //绿色画笔
+        textHeight = DensityUtil.dip2px(context,25);
         paintGreen = new Paint();
-        paintGreen.setTextSize(50);
+        paintGreen.setTextSize(DensityUtil.dip2px(context,16));
         paintGreen.setColor(Color.GREEN);
         paintGreen.setTextAlign(Paint.Align.CENTER);
         paintGreen.setAntiAlias(true);
@@ -44,7 +48,7 @@ public class LyricShowView extends TextView {
 
 //        白色画笔
         paintWhite = new Paint();
-        paintWhite.setTextSize(50);
+        paintWhite.setTextSize(DensityUtil.dip2px(context,16));
         paintWhite.setColor(Color.WHITE);
         paintWhite.setTextAlign(Paint.Align.CENTER);
         paintWhite.setAntiAlias(true);
@@ -121,8 +125,11 @@ public class LyricShowView extends TextView {
                     //中间高亮显示的哪一句
                     index = tempIndex;
                 }
+            }else {
+                index  = i;
             }
         }
+
         //什么方法导致onDraw
         invalidate();
     }

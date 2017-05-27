@@ -108,6 +108,22 @@ public class MusicPlayService extends Service {
         public boolean isPlaying() throws RemoteException {
             return mediaPlayer.isPlaying();
         }
+
+        @Override
+        public int getPlaymode() throws RemoteException {
+            return service.getPlaymode();
+        }
+
+        @Override
+        public void setPlaymode(int playmode) throws RemoteException {
+            service.setPlaymode(playmode);
+
+        }
+
+        @Override
+        public int getAudioSessionId() throws RemoteException {
+            return mediaPlayer.getAudioSessionId();
+        }
     };
     private ArrayList<MediaItem> mediaItems;
     private MediaPlayer mediaPlayer;
@@ -115,6 +131,14 @@ public class MusicPlayService extends Service {
     private MediaItem mediaItem;
     public static final String OPEN_COMPLETE = "com.example.jiangchuanfa.OPEN_COMPLETE";
     private NotificationManager nm;
+
+    public final static int REPEAT_NORMAL = 1;//顺序播放
+    public final static int REPEAT_SINGLE = 2;//单曲循环
+    public final static int REPEAT_ALL = 3;//全部循环
+
+    private int playmode = REPEAT_NORMAL;
+    //添加字段是否是正常播放完成：false表示人为让其播放下一个；true 表示正常播放播放完成
+    private boolean isCompletion = false;
 
     @Override
     public void onCreate() {
@@ -169,7 +193,11 @@ public class MusicPlayService extends Service {
 
     public void openAudio(int position) {
         this.position = position;
+        Log.e("TAG", "-----mediaItems----" + mediaItems);
+        Log.e("TAG", "-----mediaItems.size()----" + mediaItems.size());
+        Log.e("TAG", "-----position----" + position);
         if (mediaItems != null && mediaItems.size() > 0 && position < mediaItems.size()) {
+
             mediaItem = mediaItems.get(position);
             if (mediaPlayer != null) {
                 mediaPlayer.reset();
@@ -185,10 +213,15 @@ public class MusicPlayService extends Service {
                 mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
                     @Override
                     public void onCompletion(MediaPlayer mp) {
+                        isCompletion = true;
                         next();//播放完成也是继续下一个
                     }
                 });
                 mediaPlayer.prepareAsync();
+                if (playmode == MusicPlayService.REPEAT_SINGLE) {
+                    isCompletion = false;
+                }
+
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -202,7 +235,7 @@ public class MusicPlayService extends Service {
         mediaPlayer.start();
         nm = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         Intent intent = new Intent(this, AudioPlayerActivity.class);
-        intent.putExtra("notification",true);
+        intent.putExtra("notification", true);
         PendingIntent pi = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
         Notification notifation = new Notification.Builder(this)
                 .setSmallIcon(R.drawable.notification_music_playing)
@@ -243,10 +276,61 @@ public class MusicPlayService extends Service {
     }
 
     public void next() {
+        setNextPosition();
+        openNextPosition();
 
     }
 
+    private void openNextPosition() {
+        int playmode = getPlaymode();
+        if (playmode == MusicPlayService.REPEAT_NORMAL) {
+            if (position < mediaItems.size()) {
+                openAudio(position);
+            } else {
+                position = mediaItems.size() - 1;
+            }
+        } else if (playmode == MusicPlayService.REPEAT_SINGLE) {
+            if (position < mediaItems.size()) {
+                openAudio(position);
+            } else {
+                position = mediaItems.size() - 1;
+//                position = 0;
+//                openAudio(position);
+            }
+        } else if (playmode == MusicPlayService.REPEAT_ALL) {
+            openAudio(position);
+        }
+
+    }
+
+    private void setNextPosition() {
+        int playmode = getPlaymode();
+        if (playmode == MusicPlayService.REPEAT_NORMAL) {
+            position++;
+        } else if (playmode == MusicPlayService.REPEAT_SINGLE) {
+            if (!isCompletion) {
+                position++;
+            }
+
+
+        } else if (playmode == MusicPlayService.REPEAT_ALL) {
+            if (position < mediaItems.size() - 1) {
+                position++;
+            } else {
+                position = 0;
+            }
+        }
+    }
+
     public void pre() {
+    }
+
+    public int getPlaymode() {
+        return playmode;
+    }
+
+    public void setPlaymode(int playmode) {
+        this.playmode = playmode;
     }
 
     private class MyOnPreparedListener implements MediaPlayer.OnPreparedListener {

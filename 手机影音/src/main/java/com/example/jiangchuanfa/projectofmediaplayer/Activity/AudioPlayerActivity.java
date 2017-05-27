@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.graphics.drawable.AnimationDrawable;
+import android.media.audiofx.Visualizer;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -21,6 +22,7 @@ import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
+import com.example.jiangchuanfa.projectofmediaplayer.CustomView.BaseVisualizerView;
 import com.example.jiangchuanfa.projectofmediaplayer.CustomView.LyricShowView;
 import com.example.jiangchuanfa.projectofmediaplayer.DoMain.Lyric;
 import com.example.jiangchuanfa.projectofmediaplayer.DoMain.MediaItem;
@@ -65,15 +67,18 @@ public class AudioPlayerActivity extends AppCompatActivity implements View.OnCli
     private Utils utils;
 
     private final static int PROGRESS = 0;
-    private static final int  SHOW_LYRIC = 1;
+    private static final int SHOW_LYRIC = 1;
     private boolean notification;
+
+    private BaseVisualizerView visualizerview;
+    private Visualizer mVisualizer;
 
     private Handler handler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
             switch (msg.what) {
-                case  SHOW_LYRIC:
+                case SHOW_LYRIC:
                     try {
                         int currentPosition = service.getCurrentPosition();
                         lyric_show_view.setNextShowLyric(currentPosition);
@@ -85,7 +90,7 @@ public class AudioPlayerActivity extends AppCompatActivity implements View.OnCli
                     break;
                 case 0:
                     try {
-                          int currentPosition = service.getCurrentPosition();
+                        int currentPosition = service.getCurrentPosition();
                         seekbarAudio.setProgress(currentPosition);
 
                         tvTime.setText(utils.stringForTime(currentPosition) + "/" + utils.stringForTime(service.getDuration()));
@@ -156,6 +161,7 @@ public class AudioPlayerActivity extends AppCompatActivity implements View.OnCli
         btnNext = (Button) findViewById(R.id.btn_next);
         btnLyrics = (Button) findViewById(R.id.btn_lyrics);
         lyric_show_view = (LyricShowView) findViewById(R.id.lyric_show_view);
+        visualizerview = (BaseVisualizerView)findViewById(R.id.visualizerview);
 
         btnPlaymode.setOnClickListener(this);
         btnPre.setOnClickListener(this);
@@ -204,8 +210,15 @@ public class AudioPlayerActivity extends AppCompatActivity implements View.OnCli
     public void onClick(View v) {
         if (v == btnPlaymode) {
             // Handle clicks for btnPlaymode
+            setPlayMode();
+
         } else if (v == btnPre) {
             // Handle clicks for btnPre
+            try {
+                service.pre();
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
         } else if (v == btnStartPause) {
             // Handle clicks for btnStartPause
             try {
@@ -223,9 +236,51 @@ public class AudioPlayerActivity extends AppCompatActivity implements View.OnCli
 
         } else if (v == btnNext) {
             // Handle clicks for btnNext
+            try {
+                service.next();
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
         } else if (v == btnLyrics) {
             // Handle clicks for btnLyrics
         }
+    }
+
+    private void setPlayMode() {
+        try {
+            int playmode = service.getPlaymode();
+            if (playmode == MusicPlayService.REPEAT_NORMAL) {
+                playmode = MusicPlayService.REPEAT_SINGLE;
+
+            } else if (playmode == MusicPlayService.REPEAT_SINGLE) {
+                playmode = MusicPlayService.REPEAT_ALL;
+            } else if (playmode == MusicPlayService.REPEAT_ALL) {
+                playmode = MusicPlayService.REPEAT_NORMAL;
+            }
+            service.setPlaymode(playmode);
+            setButtonImage();
+
+
+        } catch (RemoteException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    private void setButtonImage() {
+        try {
+            int playmode = service.getPlaymode();
+            if (playmode == MusicPlayService.REPEAT_NORMAL) {
+                btnPlaymode.setBackgroundResource(R.drawable.btn_playmode_normal_selector);
+            } else if (playmode == MusicPlayService.REPEAT_SINGLE) {
+                btnPlaymode.setBackgroundResource(R.drawable.btn_playmode_single_selector);
+            } else if (playmode == MusicPlayService.REPEAT_ALL) {
+                btnPlaymode.setBackgroundResource(R.drawable.btn_playmode_all_selector);
+            }
+        } catch (RemoteException e) {
+            e.printStackTrace();
+        }
+
     }
 
 
@@ -274,10 +329,10 @@ public class AudioPlayerActivity extends AppCompatActivity implements View.OnCli
             //1.得到歌词所在路径
             String audioPath = service.getAudioPath();//mnt/sdcard/audio/beijingbeijing.mp3
 
-            String lyricPath = audioPath.substring(0,audioPath.lastIndexOf("."));//mnt/sdcard/audio/beijingbeijing
-            File file = new File(lyricPath+".lrc");
-            if(!file.exists()){
-                file = new File(lyricPath+".txt");
+            String lyricPath = audioPath.substring(0, audioPath.lastIndexOf("."));//mnt/sdcard/audio/beijingbeijing
+            File file = new File(lyricPath + ".lrc");
+            if (!file.exists()) {
+                file = new File(lyricPath + ".txt");
             }
             LyricsUtils lyricsUtils = new LyricsUtils();
             lyricsUtils.readFile(file);
@@ -288,7 +343,7 @@ public class AudioPlayerActivity extends AppCompatActivity implements View.OnCli
 
             //3.如果有歌词，就歌词同步
 
-            if(lyricsUtils.isLyric()){
+            if (lyricsUtils.isLyric()) {
                 handler.sendEmptyMessage(SHOW_LYRIC);
             }
 
@@ -298,20 +353,40 @@ public class AudioPlayerActivity extends AppCompatActivity implements View.OnCli
             e.printStackTrace();
         }
         handler.sendEmptyMessage(0);
+        //显示音乐频谱
+        setupVisualizerFxAndUi();
 
 
+    }
 
+    private void setupVisualizerFxAndUi() {
+        int audioSessionid = 0;
+        try {
+            audioSessionid = service.getAudioSessionId();
+        } catch (RemoteException e) {
+            e.printStackTrace();
+        }
+        System.out.println("audioSessionid==" + audioSessionid);
+        mVisualizer = new Visualizer(audioSessionid);
+        // 参数内必须是2的位数
+        mVisualizer.setCaptureSize(Visualizer.getCaptureSizeRange()[1]);
+        // 设置允许波形表示，并且捕获它
+        visualizerview.setVisualizer(mVisualizer);
+        mVisualizer.setEnabled(true);
     }
 
     private void getData() {
         notification = getIntent().getBooleanExtra("notification", false);
         if (!notification) {
             position = getIntent().getIntExtra("position", 0);
-
-
         }
-
-
+    }
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (isFinishing()) {
+            mVisualizer.release();
+        }
     }
 
     @Override
@@ -327,7 +402,7 @@ public class AudioPlayerActivity extends AppCompatActivity implements View.OnCli
             receiver = null;
         }
         EventBus.getDefault().unregister(this);
-        if(handler != null){
+        if (handler != null) {
             handler.removeCallbacksAndMessages(null);
         }
         super.onDestroy();
