@@ -32,6 +32,8 @@ import java.util.List;
 
 /**
  * Created by crest on 2017/5/19.
+ *
+ *
  */
 
 public class NetVideoPager extends BaseFragment {

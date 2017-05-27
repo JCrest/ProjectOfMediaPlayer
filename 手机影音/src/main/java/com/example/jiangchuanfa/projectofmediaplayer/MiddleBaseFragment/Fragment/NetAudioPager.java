@@ -1,12 +1,16 @@
 package com.example.jiangchuanfa.projectofmediaplayer.MiddleBaseFragment.Fragment;
 
-import android.graphics.Color;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.View;
+import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.example.jiangchuanfa.projectofmediaplayer.MiddleBaseFragment.BaseFragment;
+import com.example.jiangchuanfa.projectofmediaplayer.R;
+
+import butterknife.Bind;
+import butterknife.ButterKnife;
 
 /**
  * Created by crest on 2017/5/19.
@@ -16,21 +20,33 @@ import com.example.jiangchuanfa.projectofmediaplayer.MiddleBaseFragment.BaseFrag
 
 public class NetAudioPager extends BaseFragment {
 
-    private TextView textView;
+    private static final String TAG = NetAudioPager.class.getSimpleName();
+    @Bind(R.id.listview)
+    ListView listview;
+    @Bind(R.id.progressbar)
+    ProgressBar progressbar;
+    @Bind(R.id.tv_nomedia)
+    TextView tvNomedia;
 
     @Override
     public View initView() {
-        Log.e("TAG","NetAudioPager-initView");
-        textView = new TextView(context);
-        textView.setTextColor(Color.BLUE);
-        textView.setTextSize(30);
-        textView.setGravity(Gravity.CENTER);
-        return this.textView;
+        Log.e(TAG, "网络音频UI被初始化了");
+        View view = View.inflate(context, R.layout.fragment_net_audio, null);
+        ButterKnife.bind(this, view);
+        return view;
     }
 
     @Override
     public void initData() {
-        Log.e("TAG","NetAudioPager-initData");
-        textView.setText("网络音频内容");
+        super.initData();
+        Log.e(TAG, "网络音频数据初始化了");
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        ButterKnife.unbind(this);
     }
 }
+
+
