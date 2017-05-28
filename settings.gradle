@@ -1,2 +1,2 @@
-include ':手机影音', ':StartAllVideoPlayer',  ':vitamio'
+include ':手机影音', ':vitamio', ':jcvideoplayer-lib'
 

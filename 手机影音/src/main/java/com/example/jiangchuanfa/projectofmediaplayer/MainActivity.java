@@ -3,6 +3,8 @@ package com.example.jiangchuanfa.projectofmediaplayer;
 import android.Manifest;
 import android.app.Activity;
 import android.content.pm.PackageManager;
+import android.hardware.Sensor;
+import android.hardware.SensorManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -21,6 +23,8 @@ import com.example.jiangchuanfa.projectofmediaplayer.MiddleBaseFragment.Fragment
 
 import java.util.ArrayList;
 
+import fm.jiecao.jcvideoplayer_lib.JCVideoPlayer;
+
 /**
  * Created by crest on 2017/5/19.
  *
@@ -35,6 +39,15 @@ public class MainActivity extends AppCompatActivity {
     private Fragment tempFragment;
     private boolean isExit = false;
 
+
+
+
+    private SensorManager sensorManager;
+    private JCVideoPlayer.JCAutoFullscreenListener sensorEventListener;
+
+
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -45,6 +58,11 @@ public class MainActivity extends AppCompatActivity {
         initFragment();
         rg_main.setOnCheckedChangeListener(new MyOnCheckedChangeListener());
         rg_main.check(R.id.rb_local_video);//这个语句必须放在点击事件的下方，否则刚打开软件的时候不能不能显示内容
+
+
+        sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+        sensorEventListener = new JCVideoPlayer.JCAutoFullscreenListener();
+
     }
 
 
@@ -145,6 +163,35 @@ public class MainActivity extends AppCompatActivity {
             }
         }
         return super.onKeyDown(keyCode, event);
+    }
+
+
+
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        //监听传感器
+        Sensor accelerometerSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        sensorManager.registerListener(sensorEventListener, accelerometerSensor, SensorManager.SENSOR_DELAY_NORMAL);
+    }
+
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        //取消注册
+        sensorManager.unregisterListener(sensorEventListener);
+        JCVideoPlayer.releaseAllVideos();
+    }
+
+
+    @Override
+    public void onBackPressed() {
+        if (JCVideoPlayer.backPress()) {
+            return;
+        }
+        super.onBackPressed();
     }
 
 

@@ -21,7 +21,7 @@ import android.widget.Toast;
 import com.example.jiangchuanfa.projectofmediaplayer.Activity.AudioPlayerActivity;
 import com.example.jiangchuanfa.projectofmediaplayer.DoMain.MediaItem;
 import com.example.jiangchuanfa.projectofmediaplayer.IMusicPlayService;
-import com.example.jiangchuanfa.projectofmediaplayer.R;
+
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -238,6 +238,7 @@ public class MusicPlayService extends Service {
         intent.putExtra("notification", true);
         PendingIntent pi = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
         Notification notifation = new Notification.Builder(this)
+
                 .setSmallIcon(R.drawable.notification_music_playing)
                 .setContentTitle("手机影音")
                 .setContentText("正在播放:" + getAudioName())

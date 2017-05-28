@@ -3,7 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/ProjectOfMediaPlayer.iml" filepath="$PROJECT_DIR$/ProjectOfMediaPlayer.iml" />
-      <module fileurl="file://$PROJECT_DIR$/StartAllVideoPlayer/StartAllVideoPlayer.iml" filepath="$PROJECT_DIR$/StartAllVideoPlayer/StartAllVideoPlayer.iml" />
+      <module fileurl="file://$PROJECT_DIR$/jcvideoplayer-lib/jcvideoplayer-lib.iml" filepath="$PROJECT_DIR$/jcvideoplayer-lib/jcvideoplayer-lib.iml" />
       <module fileurl="file://$PROJECT_DIR$/vitamio/vitamio.iml" filepath="$PROJECT_DIR$/vitamio/vitamio.iml" />
       <module fileurl="file://$PROJECT_DIR$/手机影音/手机影音.iml" filepath="$PROJECT_DIR$/手机影音/手机影音.iml" />
     </modules>

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.example.jiangchuanfa.projectofmediaplayer">
 
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
@@ -38,12 +39,12 @@
 
     <application
         android:name=".app.MyApplication"
-        android:allowBackup="true"
-        android:icon="@drawable/login_icon"
+
         android:label="手机影音"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme">
+        android:theme="@style/AppTheme"
+        tools:replace="android:label">
         <activity android:name=".WelcomeActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
